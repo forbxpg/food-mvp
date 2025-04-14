@@ -6,10 +6,11 @@ infra/frontend/build
 __pycache__/
 *.py[cod]
 *$py.class
-
+.idea
+.idea/*
 # C extensions
 *.so
-
+.venv
 # Distribution / packaging
 .Python
 build/
