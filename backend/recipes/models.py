@@ -1,8 +1,11 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import Truncator
 
 from core import config
+from users.models import User
+from .utils import IsFavoriteRecipe, IsInShoppingCart
 
 
 class Tag(models.Model):
@@ -53,6 +56,9 @@ class Ingredient(models.Model):
         verbose_name_plural = _("Ингридиенты")
         ordering = ("-name",)
 
+    def __str__(self):
+        return Truncator(f"Ингридиент: {self.name}").words(config.MAX_WORD_TRUNCATOR)
+
 
 class Recipe(models.Model):
     """Модель рецепта в базе данных."""
@@ -60,6 +66,7 @@ class Recipe(models.Model):
     name = models.CharField(
         _("Название рецепта"),
         max_length=config.RECIPE_NAME_LENGTH,
+        db_index=True,
     )
     image = models.ImageField(
         _("Изображение рецепта"),
@@ -74,15 +81,39 @@ class Recipe(models.Model):
     text = models.TextField(
         _("Описание рецепта"),
     )
-
+    is_favorited = models.CharField(
+        max_length=config.CHOICEFIELD_LENGTH,
+        verbose_name=_("В избранном"),
+        choices=IsFavoriteRecipe.choices,
+        default=IsFavoriteRecipe.NO,
+    )
+    is_in_shopping_cart = models.CharField(
+        max_length=config.CHOICEFIELD_LENGTH,
+        verbose_name=_("В корзине"),
+        choices=IsInShoppingCart.choices,
+        default=IsInShoppingCart.NO,
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name=_("Автор рецепта"),
+    )
     ingredients = models.ManyToManyField(
         to=Ingredient,
         through=RecipeIngredient,
         verbose_name=_("Ингридиенты"),
-        related_name="recipes",
     )
     tags = models.ManyToManyField(
         to=Tag,
         verbose_name=_("Теги"),
-        related_name="recipes",
     )
+
+    class Meta:
+        verbose_name = _("Рецепт")
+        verbose_name_plural = _("Рецепты")
+        ordering = ("-name",)
+        default_related_name = "recipes"
+
+    def __str__(self):
+        """Возвращает строковое представление рецепта."""
+        return Truncator(f"Рецепт: {self.name}").words(config.MAX_WORD_TRUNCATOR)
