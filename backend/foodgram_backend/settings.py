@@ -21,6 +21,9 @@ INSTALLED_APPS = [
     # third-party apps
     "rest_framework",
     # local apps
+    "api.apps.ApiConfig",
+    "cart.apps.CartConfig",
+    "recipes.apps.RecipesConfig",
     "users.apps.UsersConfig",
 ]
 
