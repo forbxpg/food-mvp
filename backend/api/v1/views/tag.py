@@ -1,6 +1,5 @@
-from api.v1.serializers.tag_serializers import TagSerializer
+from api.v1.serializers import TagSerializer
 from api.v1.viewsets import RetrieveListViewSet
-
 from recipes.models import Tag
 
 
