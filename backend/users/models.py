@@ -1,6 +1,10 @@
-from django.db import models
+"""Модели приложения Users."""
+
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 
 from core import config
 
@@ -31,9 +35,17 @@ class User(AbstractUser):
         default=False,
     )
 
-    class Meta(AbstractUser.Meta):
-        ordering = ("-username",)
+    USERNAME_FIELD = "username"
+    EMAIL_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name", "last_name", "email"]
 
     def __str__(self):
         """Возвращает строковое представление пользователя."""
         return self.username
+
+    @property
+    def get_avatar_url(self):
+        """Возвращает URL аватара пользователя."""
+        if self.avatar:
+            return f"{settings.SITE_URL}{self.avatar.url}"
+        return None
