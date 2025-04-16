@@ -1,6 +1,6 @@
 """Модуль с ViewSet для ингредиентов."""
 
-from rest_framework import filters, permissions
+from rest_framework import filters
 
 from api.v1.serializers import IngredientSerializer
 from api.v1.viewsets import RetrieveListViewSet

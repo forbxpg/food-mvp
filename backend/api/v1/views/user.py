@@ -1,7 +1,7 @@
 """Модуль ViewSet для работы с пользователями."""
 
 from djoser.serializers import UserCreateSerializer
-from rest_framework import status, permissions, pagination
+from rest_framework import status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
