@@ -12,4 +12,3 @@ class TagViewSet(RetrieveListViewSet):
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (permissions.AllowAny,)

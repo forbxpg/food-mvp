@@ -19,7 +19,6 @@ class UserViewSet(CreateRetrieveListViewSet):
     """ViewSet для работы с пользователями."""
 
     queryset = User.objects.all()
-    permission_classes = (permissions.AllowAny,)
     pagination_class = BasePageNumberPagination
 
     def get_serializer_class(self):
