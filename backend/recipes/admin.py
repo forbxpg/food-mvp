@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Tag, Ingredient
+from .models import Tag, Ingredient, Recipe, RecipeIngredient
 
 
 @admin.register(Tag)
@@ -23,3 +23,19 @@ class IngredientAdmin(admin.ModelAdmin):
     list_filter = ("name",)
     empty_value_display = "-пусто-"
     list_editable = ("measurement_unit",)
+
+
+class RecipeIngredientInline(admin.TabularInline):
+    model = RecipeIngredient
+    extra = 0
+    fk_name = "recipe"
+
+
+class IngredientInline(admin.TabularInline):
+    model = Ingredient
+    extra = 0
+
+
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    inlines = (RecipeIngredientInline,)

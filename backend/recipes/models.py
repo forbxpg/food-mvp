@@ -71,6 +71,8 @@ class Recipe(models.Model):
     image = models.ImageField(
         _("Изображение рецепта"),
         upload_to="recipes/images/",
+        blank=True,
+        null=True,
     )
     cooking_time = models.PositiveSmallIntegerField(
         _("Время приготовления"),
@@ -81,17 +83,13 @@ class Recipe(models.Model):
     text = models.TextField(
         _("Описание рецепта"),
     )
-    is_favorited = models.CharField(
-        max_length=config.CHOICEFIELD_LENGTH,
-        verbose_name=_("В избранном"),
-        choices=IsFavoriteRecipe.choices,
-        default=IsFavoriteRecipe.NO,
+    is_favorited = models.BooleanField(
+        _("В избранном"),
+        default=False,
     )
-    is_in_shopping_cart = models.CharField(
-        max_length=config.CHOICEFIELD_LENGTH,
-        verbose_name=_("В корзине"),
-        choices=IsInShoppingCart.choices,
-        default=IsInShoppingCart.NO,
+    is_in_shopping_cart = models.BooleanField(
+        _("В корзине"),
+        default=False,
     )
     author = models.ForeignKey(
         User,
