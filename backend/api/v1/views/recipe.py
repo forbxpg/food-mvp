@@ -9,9 +9,12 @@ from api.v1.serializers import (
     RecipeReadSerializer,
     RecipeWriteSerializer,
     CartItemSerializer,
+    FavoriteSerializer,
+    FavoriteRecipeSerializer,
 )
 from api.v1.services import generate_short_link
 from cart.models import Cart, CartItem
+from favorite.models import Favorite, FavoriteRecipe
 from recipes.models import Recipe
 
 
@@ -41,7 +44,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permissions.AllowAny
         ],  #### SIDNAOKDNASOKDNAOSKDNAKLSDNALSKDNASKLDNASLKDNSALKdlskamdlkasmdlaksadlkmasl;dmal;smd;lasmdl;asm
     )
-    def add_recipe_to_shopping_cart(self, request, *args, **kwargs):
+    def add_or_delete_recipe_in_shopping_cart(self, request, *args, **kwargs):
         """Дополнительный action для добавления рецепта в корзину."""
         recipe = self.get_object()
         if request.method == "POST":
@@ -64,6 +67,33 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe=recipe,
             )
             cart_item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=["post", "delete"], detail=True, url_path="favorite")
+    def add_or_delete_recipe_in_favorite(self, request, *args, **kwargs):
+        """Дополнительный action для добавления рецепта в избранное."""
+        recipe = self.get_object()
+        if request.method == "POST":
+            favorite, created = Favorite.objects.get_or_create(user=request.user)
+            serializer = FavoriteSerializer(
+                data={"recipe": recipe.id, "favorite": favorite.id}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save(recipe=recipe, favorite=favorite)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+            )
+        elif request.method == "DELETE":
+            favorite_recipe = get_object_or_404(
+                FavoriteRecipe.objects.select_related(
+                    "recipe",
+                    "favorite__user",
+                ),
+                favorite__user=request.user,
+                recipe=recipe,
+            )
+            favorite_recipe.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["get"], detail=True, url_path="get-link")

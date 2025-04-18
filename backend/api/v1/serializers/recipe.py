@@ -8,7 +8,8 @@ from api.v1.serializers import (
     TagSerializer,
 )
 from api.v1.utils import Base64Field
-from cart.models import CartItem, Cart
+from cart.models import CartItem
+from favorite.models import FavoriteRecipe
 from recipes.models import Recipe, Tag, Ingredient, RecipeIngredient
 
 
@@ -60,6 +61,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         many=True, read_only=True, source="recipe_ingredients"
     )
     is_in_shopping_cart = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -73,12 +75,21 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             "ingredients",
             "tags",
             "is_in_shopping_cart",
+            "is_favorited",
         )
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get("request").user
         if user and user.is_authenticated:
             return CartItem.objects.filter(cart__user=user, recipe=obj).exists()
+        return False
+
+    def get_is_favorited(self, obj):
+        user = self.context.get("request").user
+        if user and user.is_authenticated:
+            return FavoriteRecipe.objects.filter(
+                favorite__user=user, recipe=obj
+            ).exists()
         return False
 
 

@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     # local apps
     "api.apps.ApiConfig",
     "cart.apps.CartConfig",
+    "favorite",
     "recipes.apps.RecipesConfig",
     "users.apps.UsersConfig",
 ]
