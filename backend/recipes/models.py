@@ -5,7 +5,6 @@ from django.utils.text import Truncator
 
 from core import config
 from users.models import User
-from .utils import IsFavoriteRecipe, IsInShoppingCart
 
 
 class Tag(models.Model):
@@ -16,17 +15,18 @@ class Tag(models.Model):
         max_length=config.TAG_FIELDS_LENGTHS,
         unique=True,
     )
-    slug = models.CharField(
+    slug = models.SlugField(
         _("Slug тега"),
         max_length=config.TAG_FIELDS_LENGTHS,
         unique=True,
         db_index=True,  # Индексация slug для быстрого поиска
     )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = _("Тег")
         verbose_name_plural = _("Теги")
-        ordering = ("-name",)
+        ordering = ("name",)
 
     def __str__(self):
         return f"Тег: {self.name}"
@@ -35,8 +35,30 @@ class Tag(models.Model):
 class RecipeIngredient(models.Model):
     """Промежуточная модель для связи рецепта и ингридиента."""
 
-    ingredient = models.ForeignKey("Ingredient", on_delete=models.CASCADE)
-    recipe = models.ForeignKey("Recipe", on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(
+        "Ingredient",
+        on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(
+        "Recipe",
+        on_delete=models.CASCADE,
+    )
+    amount = models.PositiveSmallIntegerField(
+        _("Количество ингридиента"),
+        validators=[
+            MinValueValidator(1, message=_("Количество должно быть больше нуля.")),
+        ],
+        default=1,
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("recipe", "ingredient"),
+                name="unique_recipe_ingredient",
+            )
+        ]
+        default_related_name = "recipe_ingredients"
 
 
 class Ingredient(models.Model):
@@ -45,16 +67,19 @@ class Ingredient(models.Model):
     name = models.CharField(
         _("Название ингридиента"),
         max_length=config.INGREDIENT_NAME_LENGTH,
+        unique=True,
+        db_index=True,
     )
     measurement_unit = models.CharField(
         _("Единица измерения"),
         max_length=config.MEASUREMENT_UNIT_LENGTH,
     )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = _("Ингридиент")
         verbose_name_plural = _("Ингридиенты")
-        ordering = ("-name",)
+        ordering = ("name",)
 
     def __str__(self):
         return Truncator(f"Ингридиент: {self.name}").words(config.MAX_WORD_TRUNCATOR)
@@ -83,14 +108,6 @@ class Recipe(models.Model):
     text = models.TextField(
         _("Описание рецепта"),
     )
-    is_favorited = models.BooleanField(
-        _("В избранном"),
-        default=False,
-    )
-    is_in_shopping_cart = models.BooleanField(
-        _("В корзине"),
-        default=False,
-    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -105,11 +122,13 @@ class Recipe(models.Model):
         to=Tag,
         verbose_name=_("Теги"),
     )
+    created_at = models.DateTimeField(_("Добавлено"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
 
     class Meta:
         verbose_name = _("Рецепт")
         verbose_name_plural = _("Рецепты")
-        ordering = ("-name",)
+        ordering = ("name",)
         default_related_name = "recipes"
 
     def __str__(self):
