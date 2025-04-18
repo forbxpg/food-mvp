@@ -34,17 +34,6 @@ class CartItemSerializer(serializers.ModelSerializer):
             )
         ]
 
-    # def create(self, validated_data):
-    #     cart = validated_data.pop("cart")
-    #     recipe = validated_data.pop("recipe")
-    #     cart_item, created = CartItem.objects.get_or_create(
-    #         cart=cart,
-    #         recipe=recipe,
-    #     )
-    #     if created:
-    #         cart_item.save()
-    #     return cart_item
-
     def to_representation(self, instance):
         recipe = instance.recipe
         return CartRecipeSerializer(recipe).data

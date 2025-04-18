@@ -1,7 +1,5 @@
 """Модуль представлений для работы с рецептами."""
 
-from django.db.models import Exists
-from django.db.models.expressions import OuterRef
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -13,35 +11,21 @@ from api.v1.serializers import (
     CartItemSerializer,
 )
 from cart.models import Cart, CartItem
-from recipes.models import Recipe, RecipeIngredient
+from recipes.models import Recipe
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """ViewSet для работы с рецептами."""
 
-    def get_queryset(self):
-        """Получение queryset для работы с рецептами."""
-        return (
-            Recipe.objects.select_related(
-                "author",
-            ).prefetch_related(
-                "tags",
-                "ingredients",
-            )
-            # .annotate(
-            #     is_in_shopping_cart=Exists(
-            #         user.cart.cart_items.filter(recipe=OuterRef("pk"))
-            #     ),
-            # )
-        )
+    queryset = Recipe.objects.select_related(
+        "author",
+    ).prefetch_related(
+        "tags",
+        "ingredients",
+    )
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-        return super().perform_create(serializer)
-
-    def perform_update(self, serializer):
-        serializer.save(author=self.request.user)
-        return super().perform_update(serializer)
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
@@ -58,7 +42,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 data={
                     "cart": cart.id,
                     "recipe": recipe.id,
-                }
+                },
+                context=self.get_serializer_context(),
             )
             serializer.is_valid(raise_exception=True)
             serializer.save(cart=cart, recipe=recipe)

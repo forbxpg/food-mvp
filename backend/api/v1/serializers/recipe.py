@@ -5,11 +5,11 @@ from rest_framework import serializers
 
 from api.v1.serializers import (
     UserSerializer,
-    IngredientSerializer,
     TagSerializer,
 )
-from recipes.models import Recipe, Tag, Ingredient, RecipeIngredient
 from api.v1.utils import Base64Field
+from cart.models import CartItem, Cart
+from recipes.models import Recipe, Tag, Ingredient, RecipeIngredient
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -59,6 +59,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientReadSerializer(
         many=True, read_only=True, source="recipe_ingredients"
     )
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -71,7 +72,12 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             "author",
             "ingredients",
             "tags",
+            "is_in_shopping_cart",
         )
+
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context.get("request").user
+        return CartItem.objects.filter(cart__user=user, recipe=obj).exists()
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
@@ -133,12 +139,16 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         tags = validated_data.pop("tags")
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
-        for ingredient_data in ingredients_data:
-            RecipeIngredient.objects.create(
-                ingredient=ingredient_data.get("ingredient"),
-                recipe=recipe,
-                amount=ingredient_data.get("amount"),
-            )
+        RecipeIngredient.objects.bulk_create(
+            [
+                RecipeIngredient(
+                    ingredient=ingredient_data.get("ingredient"),
+                    recipe=recipe,
+                    amount=ingredient_data.get("amount"),
+                )
+                for ingredient_data in ingredients_data
+            ]
+        )
         return recipe
 
     def update(self, instance, validated_data):
@@ -154,4 +164,4 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return instance
 
     def to_representation(self, instance):
-        return RecipeReadSerializer(instance).data
+        return RecipeReadSerializer(instance, context=self.context).data
