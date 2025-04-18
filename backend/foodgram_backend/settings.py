@@ -113,8 +113,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
 
-if DEBUG:
-    SITE_URL = "http://127.0.0.1:8000"
+SITE_URL = "http://127.0.0.1:8000"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"

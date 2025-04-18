@@ -122,6 +122,13 @@ class Recipe(models.Model):
         to=Tag,
         verbose_name=_("Теги"),
     )
+    short_link = models.SlugField(
+        _("Короткая ссылка"),
+        max_length=config.TAG_FIELDS_LENGTHS,
+        db_index=True,  # Индексация для быстрого поиска
+        blank=True,
+        null=True,
+    )
     created_at = models.DateTimeField(_("Добавлено"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
 
