@@ -54,29 +54,34 @@ class Subscription(models.Model):
     """Модель подписки пользователя на другого пользователя.
 
     Используется для хранения информации о подписках пользователей.
+    :subscriber - пользователь, который подписывается.
+    :subscribing - пользователь, на которого подписываются.
     """
 
-    follower = models.ForeignKey(
+    subscriber = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="subscriptions",
         verbose_name=_("Подписчик"),
     )
-    user = models.ForeignKey(
+    subscribing = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="followers",
+        related_name="subscribers",
         verbose_name=_("Автор"),
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
     )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=("subscriber", "author"),
-                name="unique_user_author_subscription",
+                fields=("subscriber", "subscribing"),
+                name="unique_subscriber_subscribing_subscription",
             ),
             models.CheckConstraint(
-                check=~models.Q(follower=models.F("user")),
+                check=~models.Q(subscriber=models.F("subscribing")),
                 name="prevent_self_subscription",
                 violation_error_message=_("Нельзя подписаться на самого себя."),
             ),

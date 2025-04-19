@@ -1,36 +1,86 @@
-"""Модуль сериализаторов для модели подписок."""
-
 from rest_framework import serializers
 
-from api.v1.serializers import UserSerializer
-from users.models import Subscription, User
+from recipes.models import Recipe
+from users.models import User, Subscription
+
+
+class UserRecipes(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ("id", "name", "image", "cooking_time")
+
+
+class UserSubscribersSerializer(serializers.ModelSerializer):
+    """Сериализатор для подписчика.
+
+    Поля берутся из модели Subscription, но отображаются как поля
+    пользователя, на которого подписываются - subscribing.
+    """
+
+    id = serializers.IntegerField(source="subscribing.id")
+    username = serializers.CharField(source="subscribing.username")
+    email = serializers.CharField(source="subscribing.email")
+    first_name = serializers.CharField(source="subscribing.first_name")
+    last_name = serializers.CharField(source="subscribing.last_name")
+    avatar = serializers.ImageField(source="subscribing.avatar")
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = (
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "avatar",
+            "recipes",
+            "recipes_count",
+            "is_subscribed",
+        )
+        model = Subscription
+
+    def get_recipes(self, obj):
+        """Получает рецепты subscriber`а."""
+        request = self.context.get("request")
+        recipes = obj.subscribing.recipes.all()
+        recipes_limit = request.query_params.get("recipes_limit")
+        if recipes_limit:
+            recipes = recipes[: int(recipes_limit)]
+        return UserRecipes(recipes, many=True).data
+
+    def get_recipes_count(self, obj):
+        """Получает количество рецептов subscriber`а."""
+        return obj.subscribing.recipes.count()
+
+    def get_is_subscribed(self, obj):
+        """Проверяет подписан ли subscriber на пользователя."""
+        request = self.context.get("request")
+        return Subscription.objects.filter(
+            subscribing=obj.subscribing, subscriber=request.user
+        ).exists()
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
-    """Сериализатор модели подписок."""
-
-    user = UserSerializer(source="followers")
-    follower = UserSerializer(source="subscriptions")
+    """Сериализатор для модели Subscription."""
 
     class Meta:
+        fields = ("id", "subscriber", "subscribing")
         model = Subscription
-        fields = ("user", "follower", "id")
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Subscription.objects.all(),
+                fields=("subscriber", "subscribing"),
+                message="Вы уже подписаны на этого пользователя",
+            )
+        ]
 
+    def validate_subscribing(self, value):
+        if value == self.context.get("request").user:
+            raise serializers.ValidationError("Нельзя подписаться на себя")
+        return value
 
-class UserSubscriptionsReadSerializer(serializers.ModelSerializer):
-    """Сериализатор модели подписок текущего пользователя."""
-
-    subscriptions = SubscriptionSerializer(
-        source="subscriptions",
-        many=True,
-    )
-    id = serializers.IntegerField(source="subscriptions.id")
-    email = serializers.EmailField(source="subscriptions.email")
-    username = serializers.CharField(source="subscriptions.username")
-    first_name = serializers.CharField(source="subscriptions.first_name")
-    last_name = serializers.CharField(source="subscriptions.last_name")
-    is_subscribed = serializers.BooleanField(source="subscriptions.is_subscribed")
-
-    class Meta:
-        model = User
-        fields = ("id", "email", "username", "first_name", "last_name", "is_subscribed")
+    def to_representation(self, instance):
+        return UserSubscribersSerializer(instance, context=self.context).data

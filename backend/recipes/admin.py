@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from favorite.models import Favorite
 from .models import Tag, Ingredient, Recipe, RecipeIngredient
 
 
@@ -48,3 +49,7 @@ class RecipeAdmin(admin.ModelAdmin):
         "short_link",
         "image",
     )
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin): ...
