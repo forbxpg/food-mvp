@@ -1,7 +1,5 @@
 """Модуль ViewSet для работы с пользователями."""
 
-from symbol import subscript
-
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer
 from rest_framework import status, permissions
