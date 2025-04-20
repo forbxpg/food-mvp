@@ -1,4 +1,9 @@
-from .user import UserSerializer, UserAvatarSerializer, UserSetPasswordSerializer
+from .user import (
+    UserSerializer,
+    UserAvatarSerializer,
+    UserSetPasswordSerializer,
+    UserCreationSerializer,
+)
 from .subscription import SubscriptionSerializer, UserSubscribersSerializer
 from .cart import CartRecipeSerializer, CartItemSerializer
 from .favorite import FavoriteRecipeSerializer, FavoriteSerializer
@@ -15,6 +20,7 @@ __all__ = [
     "FavoriteRecipeSerializer",
     "FavoriteSerializer",
     "UserSerializer",
+    "UserCreationSerializer",
     "UserAvatarSerializer",
     "UserSetPasswordSerializer",
     "TagSerializer",

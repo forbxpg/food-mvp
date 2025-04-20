@@ -29,13 +29,7 @@ class User(AbstractUser):
         blank=True,
         null=True,
     )
-    is_subscribed = models.BooleanField(
-        _("Подписка"),
-        default=False,
-    )
 
-    USERNAME_FIELD = "username"
-    EMAIL_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "email"]
 
     def __str__(self):

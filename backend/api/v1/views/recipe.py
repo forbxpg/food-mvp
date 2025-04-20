@@ -1,7 +1,8 @@
 """Модуль представлений для работы с рецептами."""
 
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, status, viewsets, generics
+from rest_framework import permissions, status, viewsets
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -40,9 +41,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=["post", "delete"],
         detail=True,
         url_path="shopping_cart",
-        permission_classes=[
-            permissions.AllowAny
-        ],  #### SIDNAOKDNASOKDNAOSKDNAKLSDNALSKDNASKLDNASLKDNSALKdlskamdlkasmdlaksadlkmasl;dmal;smd;lasmdl;asm
+        permission_classes=[permissions.IsAuthenticated],
     )
     def add_or_delete_recipe_in_shopping_cart(self, request, *args, **kwargs):
         """Дополнительный action для добавления рецепта в корзину."""
@@ -51,7 +50,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             cart, created = Cart.objects.get_or_create(user=request.user)
             serializer = CartItemSerializer(data={"cart": cart.id, "recipe": recipe.id})
             serializer.is_valid(raise_exception=True)
-            serializer.save(cart=cart, recipe=recipe)
+            serializer.save()
             return Response(
                 serializer.data,
                 status=status.HTTP_201_CREATED,
@@ -109,7 +108,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
 
-class RetrieveRecipeViaShortLinkView(generics.RetrieveAPIView):
+class RetrieveRecipeViaShortLinkView(RetrieveAPIView):
     """APIView для получения рецепта по короткой ссылке."""
 
     queryset = Recipe.objects.select_related(

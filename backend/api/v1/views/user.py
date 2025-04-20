@@ -1,7 +1,7 @@
 """Модуль ViewSet для работы с пользователями."""
 
+from django.db.models.expressions import Exists, OuterRef
 from django.shortcuts import get_object_or_404
-from djoser.serializers import UserCreateSerializer
 from rest_framework import status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -13,6 +13,7 @@ from api.v1.serializers import (
     UserSetPasswordSerializer,
     SubscriptionSerializer,
     UserSubscribersSerializer,
+    UserCreationSerializer,
 )
 from api.v1.pagination import BasePageNumberPagination
 from users.models import User, Subscription
@@ -27,7 +28,7 @@ class UserViewSet(CreateRetrieveListViewSet):
     def get_serializer_class(self):
         """Метод для получения сериализатора в зависимости от действия."""
         if self.action == "create":
-            return UserCreateSerializer
+            return UserCreationSerializer
         return UserSerializer
 
     @action(

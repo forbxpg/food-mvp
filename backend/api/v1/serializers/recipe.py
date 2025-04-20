@@ -4,10 +4,11 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from api.v1.serializers import (
-    UserSerializer,
     TagSerializer,
+    UserSerializer,
 )
 from api.v1.utils import Base64Field
+from api.v1.services import bulk_create_recipe_ingredients
 from cart.models import CartItem
 from favorite.models import FavoriteRecipe
 from recipes.models import Recipe, Tag, Ingredient, RecipeIngredient
@@ -17,7 +18,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Класс для сериализации объектов промежуточной модели `RecipeIngredient`.
 
     Используется для сериализации `ingredients` приходящих в POST/PUT запросах.
-    Поле `id` представляет из себя объект из `queryset` модели `Ingredient`.
+    Поле `id` представляет собой объект из `queryset` модели `Ingredient`.
     """
 
     id = serializers.PrimaryKeyRelatedField(
@@ -115,6 +116,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             "cooking_time",
             "ingredients",
             "tags",
+            "text",
         )
 
     def validate_ingredients(self, value):
@@ -152,28 +154,14 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         tags = validated_data.pop("tags")
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
-        RecipeIngredient.objects.bulk_create(
-            [
-                RecipeIngredient(
-                    ingredient=ingredient_data.get("ingredient"),
-                    recipe=recipe,
-                    amount=ingredient_data.get("amount"),
-                )
-                for ingredient_data in ingredients_data
-            ]
-        )
+        bulk_create_recipe_ingredients(recipe, ingredients_data)
         return recipe
 
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop("recipe_ingredients", [])
         instance = super().update(instance, validated_data)
         instance.recipe_ingredients.all().delete()
-        for ingredient_data in ingredients_data:
-            RecipeIngredient.objects.create(
-                recipe=instance,
-                ingredient=ingredient_data.get("ingredient"),
-                amount=ingredient_data.get("amount"),
-            )
+        bulk_create_recipe_ingredients(instance, ingredients_data)
         return instance
 
     def to_representation(self, instance):

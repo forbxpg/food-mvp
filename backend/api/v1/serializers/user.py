@@ -1,10 +1,10 @@
 """Модуль сериализаторов для модели пользователя."""
 
-from djoser.serializers import SetPasswordSerializer
+from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
 from rest_framework import serializers
 
 from api.v1.utils import Base64Field
-from users.models import User
+from users.models import User, Subscription
 
 
 class UserSetPasswordSerializer(SetPasswordSerializer):
@@ -36,6 +36,8 @@ class UserAvatarSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для модели пользователя."""
 
+    is_subscribed = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = (
@@ -46,4 +48,26 @@ class UserSerializer(serializers.ModelSerializer):
             "username",
             "is_subscribed",
             "avatar",
+        )
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get("request").user
+        return Subscription.objects.filter(
+            subscriber=user,
+            subscribing=obj,
+        ).exists()
+
+
+class UserCreationSerializer(UserSerializer):
+    """Сериализатор для создания пользователя."""
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "username",
+            "password",
         )
