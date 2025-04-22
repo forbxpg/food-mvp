@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "djoser",
+    "django_filters",
     # local apps
     "api.apps.ApiConfig",
     "cart.apps.CartConfig",
@@ -98,7 +99,6 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     "LOGIN_FIELD": "email",
-    "USERNAME_FIELD": "username",
 }
 
 

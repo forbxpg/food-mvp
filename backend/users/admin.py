@@ -12,7 +12,6 @@ class UserAdmin(admin.ModelAdmin):
         "last_name",
         "email",
         "avatar",
-        "is_subscribed",
         "is_staff",
         "is_active",
         "is_superuser",

@@ -1,19 +1,22 @@
 """Модуль представлений для работы с рецептами."""
 
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from api.v1.filters import RecipeFilter
 from api.v1.serializers import (
     RecipeReadSerializer,
     RecipeWriteSerializer,
     CartItemSerializer,
     FavoriteSerializer,
-    FavoriteRecipeSerializer,
 )
 from api.v1.services import generate_short_link
+from api.v1.pagination import BasePageNumberPagination
+from api.v1.permissions import IsAuthorOrReadOnly
 from cart.models import Cart, CartItem
 from favorite.models import Favorite, FavoriteRecipe
 from recipes.models import Recipe
@@ -28,6 +31,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         "tags",
         "ingredients",
     )
+    pagination_class = BasePageNumberPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
+    permission_classes = (IsAuthorOrReadOnly,)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -57,18 +64,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
 
         elif request.method == "DELETE":
-            cart_item = get_object_or_404(
-                CartItem.objects.select_related(
-                    "recipe",
-                    "cart__user",
-                ),
-                cart__user=self.request.user,
-                recipe=recipe,
-            )
-            cart_item.delete()
+            try:
+                recipe.cart_items.get(
+                    cart__user=request.user,
+                    recipe=recipe,
+                ).delete()
+            except CartItem.DoesNotExist:
+                return Response(
+                    {"errors": "Recipe not found in shopping cart."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(methods=["post", "delete"], detail=True, url_path="favorite")
+    @action(
+        methods=["post", "delete"],
+        detail=True,
+        url_path="favorite",
+        permission_classes=[permissions.IsAuthenticated],
+    )
     def add_or_delete_recipe_in_favorite(self, request, *args, **kwargs):
         """Дополнительный action для добавления рецепта в избранное."""
         recipe = self.get_object()
@@ -84,15 +97,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_201_CREATED,
             )
         elif request.method == "DELETE":
-            favorite_recipe = get_object_or_404(
-                FavoriteRecipe.objects.select_related(
-                    "recipe",
-                    "favorite__user",
-                ),
-                favorite__user=request.user,
-                recipe=recipe,
-            )
-            favorite_recipe.delete()
+            try:
+                recipe.favorites.get(
+                    favorite__user=request.user,
+                    recipe=recipe,
+                ).delete()
+            except FavoriteRecipe.DoesNotExist:
+                return Response(
+                    {"errors": "Recipe not found in favorites."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["get"], detail=True, url_path="get-link")
@@ -103,7 +117,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe.short_link = short_link
         recipe.save(update_fields=["short_link"])
         return Response(
-            {"short_link": response_short_link},
+            {"short-link": response_short_link},
             status=status.HTTP_200_OK,
         )
 

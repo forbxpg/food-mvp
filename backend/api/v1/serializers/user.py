@@ -20,7 +20,7 @@ class UserSetPasswordSerializer(SetPasswordSerializer):
 class UserAvatarSerializer(serializers.ModelSerializer):
     """Сериализатор для аватара пользователя."""
 
-    avatar = Base64Field(allow_null=True, required=False)
+    avatar = Base64Field(allow_null=True, required=True)
 
     class Meta:
         model = User
@@ -52,13 +52,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context.get("request").user
+        if user.is_anonymous or not user:
+            return False
         return Subscription.objects.filter(
             subscriber=user,
             subscribing=obj,
         ).exists()
 
 
-class UserCreationSerializer(UserSerializer):
+class UserCreationSerializer(UserCreateSerializer):
     """Сериализатор для создания пользователя."""
 
     class Meta:

@@ -154,14 +154,26 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         tags = validated_data.pop("tags")
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
-        bulk_create_recipe_ingredients(recipe, ingredients_data)
+        bulk_create_recipe_ingredients(recipe=recipe, ingredients_data=ingredients_data)
         return recipe
 
     def update(self, instance, validated_data):
-        ingredients_data = validated_data.pop("recipe_ingredients", [])
+        ingredients_data = validated_data.pop("recipe_ingredients", None)
+        tags = validated_data.pop("tags", None)
+        if tags is None:
+            raise serializers.ValidationError(
+                _("Необходимо указать список тегов для обновления.")
+            )
+        if ingredients_data is None:
+            raise serializers.ValidationError(
+                _("Необходимо указать список ингредиентов для обновления.")
+            )
+        instance.tags.set(tags)
         instance = super().update(instance, validated_data)
         instance.recipe_ingredients.all().delete()
-        bulk_create_recipe_ingredients(instance, ingredients_data)
+        bulk_create_recipe_ingredients(
+            recipe=instance, ingredients_data=ingredients_data
+        )
         return instance
 
     def to_representation(self, instance):
