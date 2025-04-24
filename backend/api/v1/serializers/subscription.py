@@ -1,7 +1,9 @@
+"""Модуль сериализаторов для подписок."""
+
 from rest_framework import serializers
 
 from recipes.models import Recipe
-from users.models import User, Subscription
+from users.models import Subscription
 
 
 class UserRecipes(serializers.ModelSerializer):

@@ -1,3 +1,5 @@
+"""Модели приложения recipes."""
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -33,7 +35,7 @@ class Tag(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    """Промежуточная модель для связи рецепта и ингридиента."""
+    """Промежуточная модель для связи рецепта и ингредиента."""
 
     ingredient = models.ForeignKey(
         "Ingredient",
@@ -62,10 +64,10 @@ class RecipeIngredient(models.Model):
 
 
 class Ingredient(models.Model):
-    """Модель ингридиента в базе данных."""
+    """Модель ингредиента в базе данных."""
 
     name = models.CharField(
-        _("Название ингридиента"),
+        _("Название ингредиента"),
         max_length=config.INGREDIENT_NAME_LENGTH,
         unique=True,
         db_index=True,
@@ -96,8 +98,6 @@ class Recipe(models.Model):
     image = models.ImageField(
         _("Изображение рецепта"),
         upload_to="recipes/images/",
-        blank=True,
-        null=True,
     )
     cooking_time = models.PositiveSmallIntegerField(
         _("Время приготовления"),
@@ -125,7 +125,7 @@ class Recipe(models.Model):
     short_link = models.SlugField(
         _("Короткая ссылка"),
         max_length=config.TAG_FIELDS_LENGTHS,
-        db_index=True,  # Индексация для быстрого поиска
+        db_index=True,
         blank=True,
         null=True,
     )
@@ -135,7 +135,7 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = _("Рецепт")
         verbose_name_plural = _("Рецепты")
-        ordering = ("name",)
+        ordering = ("id",)
         default_related_name = "recipes"
 
     def __str__(self):

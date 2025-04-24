@@ -1,3 +1,5 @@
+"""Модуль, определяющий права доступа в приложении."""
+
 from rest_framework import permissions
 
 

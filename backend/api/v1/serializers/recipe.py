@@ -7,8 +7,8 @@ from api.v1.serializers import (
     TagSerializer,
     UserSerializer,
 )
-from api.v1.utils import Base64Field
 from api.v1.services import bulk_create_recipe_ingredients
+from api.v1.utils import Base64Field
 from cart.models import CartItem
 from favorite.models import FavoriteRecipe
 from recipes.models import Recipe, Tag, Ingredient, RecipeIngredient
@@ -97,7 +97,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 class RecipeWriteSerializer(serializers.ModelSerializer):
     """Класс для сериализации рецептов при `POST`/`PUT` запросах."""
 
-    image = Base64Field()
+    image = Base64Field(required=True)
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all(),
@@ -119,30 +119,32 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             "text",
         )
 
-    def validate_ingredients(self, value):
-        if len(value) < 1:
-            raise serializers.ValidationError(
-                _("Список ингредиентов должен содержать хотя бы один элемент.")
-            )
-        ingredient_ids = [ingredient["ingredient"].id for ingredient in value]
-        if len(ingredient_ids) != len(set(ingredient_ids)):
-            raise serializers.ValidationError(_("Ингредиенты должны быть уникальными."))
-        for ingredient in value:
-            if ingredient.get("amount") is None or ingredient.get("amount") <= 0:
+        def validate_tags(self, value):
+            if len(value) < 1:
                 raise serializers.ValidationError(
-                    _("Количество ингредиента должно быть больше нуля.")
+                    _("Список тегов должен содержать хотя бы один элемент.")
                 )
-        return value
+            tag_ids = [tag.id for tag in value]
+            if len(tag_ids) != len(set(tag_ids)):
+                raise serializers.ValidationError(_("Теги должны быть уникальными."))
+            return value
 
-    def validate_tags(self, value):
-        if len(value) < 1:
-            raise serializers.ValidationError(
-                _("Список тегов должен содержать хотя бы один элемент.")
-            )
-        tag_ids = [tag.id for tag in value]
-        if len(tag_ids) != len(set(tag_ids)):
-            raise serializers.ValidationError(_("Теги должны быть уникальными."))
-        return value
+        def validate_ingredients(self, value):
+            if len(value) < 1:
+                raise serializers.ValidationError(
+                    _("Список ингредиентов должен содержать хотя бы один элемент.")
+                )
+            ingredient_ids = [ingredient["ingredient"].id for ingredient in value]
+            if len(ingredient_ids) != len(set(ingredient_ids)):
+                raise serializers.ValidationError(
+                    _("Ингредиенты должны быть уникальными.")
+                )
+            for ingredient in value:
+                if ingredient.get("amount") is None or ingredient.get("amount") <= 0:
+                    raise serializers.ValidationError(
+                        _("Количество ингредиента должно быть больше нуля.")
+                    )
+            return value
 
     def create(self, validated_data):
         """Переопределяет метод сохранения приходящих объектов при `POST`-запросе.
@@ -160,11 +162,14 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop("recipe_ingredients", None)
         tags = validated_data.pop("tags", None)
-        if tags is None:
+        image = validated_data.pop("image", None)
+        if image:
+            instance.image = image
+        if tags is None or len(tags) < 1:
             raise serializers.ValidationError(
                 _("Необходимо указать список тегов для обновления.")
             )
-        if ingredients_data is None:
+        if ingredients_data is None or len(ingredients_data) < 1:
             raise serializers.ValidationError(
                 _("Необходимо указать список ингредиентов для обновления.")
             )

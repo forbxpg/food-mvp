@@ -1,10 +1,13 @@
+"""Сериализаторы для модели избранного."""
+
 from rest_framework import serializers
 
-from favorite.models import FavoriteRecipe, Favorite
+from favorite.models import FavoriteRecipe
 from recipes.models import Recipe
 
 
 class FavoriteRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для отображения рецепта в избранном."""
 
     class Meta:
         model = Recipe
@@ -12,6 +15,7 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
+    """Сериализатор для добавления/удаления рецепта в избранное."""
 
     class Meta:
         model = FavoriteRecipe

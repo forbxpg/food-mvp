@@ -1,4 +1,4 @@
-"""Сериализаторы для корзины."""
+"""Сериализаторы для модели корзины."""
 
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
@@ -21,7 +21,7 @@ class CartRecipeSerializer(serializers.ModelSerializer):
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    """Сериализатор для корзины."""
+    """Сериализатор для записи/удаления продуктов в корзине."""
 
     class Meta:
         model = CartItem
@@ -35,5 +35,4 @@ class CartItemSerializer(serializers.ModelSerializer):
         ]
 
     def to_representation(self, instance):
-        recipe = instance.recipe
-        return CartRecipeSerializer(recipe).data
+        return CartRecipeSerializer(instance.recipe).data

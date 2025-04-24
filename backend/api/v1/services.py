@@ -1,8 +1,12 @@
+"""Бизнес-логика API."""
+
 from uuid import uuid4
 
 from django.conf import settings
 
 from recipes.models import RecipeIngredient
+
+
 from core.config import SHORT_LINK_LENGTH
 
 

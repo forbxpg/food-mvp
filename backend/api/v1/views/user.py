@@ -17,7 +17,7 @@ from api.v1.serializers import (
 from users.models import User, Subscription
 
 
-ACTIONS_SERIALIZERS_MAPPING = {
+USER_ACTIONS_SERIALIZERS_MAPPING = {
     "create": UserCreationSerializer,
     "list": UserSerializer,
     "retrieve": UserSerializer,
@@ -37,8 +37,8 @@ class UserViewSet(CreateRetrieveListViewSet):
 
     def get_serializer_class(self):
         """Метод для получения сериализатора в зависимости от действия."""
-        if self.action in ACTIONS_SERIALIZERS_MAPPING:
-            return ACTIONS_SERIALIZERS_MAPPING[self.action]
+        if self.action in USER_ACTIONS_SERIALIZERS_MAPPING:
+            return USER_ACTIONS_SERIALIZERS_MAPPING[self.action]
 
     @action(
         methods=["get"],

@@ -1,0 +1,71 @@
+import pytest
+
+from recipes.models import Ingredient, Tag, Recipe
+
+
+@pytest.fixture
+def ingredient():
+    return Ingredient.objects.create(
+        name="Test Ingredient",
+        measurement_unit="kg",
+    )
+
+
+@pytest.fixture
+def ingredient_2():
+    return Ingredient.objects.create(
+        name="Test Ingredient 2",
+        measurement_unit="g",
+    )
+
+
+@pytest.fixture
+def tag():
+    return Tag.objects.create(
+        name="Test Tag",
+        slug="test-tag",
+    )
+
+
+@pytest.fixture
+def tag_2():
+    return Tag.objects.create(
+        name="Test Tag 2",
+        slug="test-tag-2",
+    )
+
+
+@pytest.fixture
+def recipe(user, ingredient, tag):
+    recipe = Recipe.objects.create(
+        author=user,
+        name="Test Recipe",
+        text="Test text",
+        cooking_time=10,
+        image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD// \
+            /9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+    )
+    recipe.tags.add(tag)
+    recipe.ingredients.add(ingredient)
+    return recipe
+
+
+@pytest.fixture
+def three_recipes_from_one_user(user, ingredient, tag):
+    recipes = Recipe.objects.bulk_create(
+        [
+            Recipe(
+                author=user,
+                name=f"Test Recipe {i}",
+                text="Test text",
+                cooking_time=10,
+                image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD// \
+            /9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+            )
+            for i in range(1, 4)
+        ]
+    )
+    for rec in recipes:
+        rec.tags.add(tag)
+        rec.ingredients.add(ingredient)
+    return recipes

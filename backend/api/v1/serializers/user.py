@@ -29,7 +29,7 @@ class UserAvatarSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """Метод для обновления данных пользователя."""
         if "avatar" in validated_data:
-            instance.avatar.delete(save=False)
+            instance.avatar.delete()
         return super().update(instance, validated_data)
 
 

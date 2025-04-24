@@ -13,11 +13,11 @@ class User(AbstractUser):
 
     first_name = models.CharField(
         _("Имя"),
-        max_length=config.USER_NAME_LENGTH,
+        max_length=config.USERNAME_LENGTH,
     )
     last_name = models.CharField(
         _("Фамилия"),
-        max_length=config.USER_NAME_LENGTH,
+        max_length=config.USERNAME_LENGTH,
     )
     email = models.EmailField(
         _("Адрес электронной почты"),

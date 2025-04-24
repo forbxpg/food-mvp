@@ -1,17 +1,8 @@
 """Модуль классов пагинации."""
 
-from rest_framework.pagination import (
-    LimitOffsetPagination,
-    PageNumberPagination,
-)
+from rest_framework.pagination import PageNumberPagination
 
 from core import config
-
-
-class BaseLimitOffsetPagination(LimitOffsetPagination):
-    """Базовый класс пагинации для API."""
-
-    default_limit = config.DEFAULT_PAGE_SIZE
 
 
 class BasePageNumberPagination(PageNumberPagination):

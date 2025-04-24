@@ -3,10 +3,10 @@
 from rest_framework.routers import DefaultRouter
 
 from api.v1.views import (
-    TagViewSet,
     IngredientViewSet,
-    UserViewSet,
     RecipeViewSet,
+    TagViewSet,
+    UserViewSet,
 )
 
 

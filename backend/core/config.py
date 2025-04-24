@@ -1,5 +1,5 @@
 # User constants
-USER_NAME_LENGTH = 150
+USERNAME_LENGTH = 150
 
 # Tag constants
 TAG_FIELDS_LENGTHS = 32

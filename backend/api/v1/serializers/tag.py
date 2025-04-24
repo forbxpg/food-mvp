@@ -6,7 +6,7 @@ from recipes.models import Tag
 
 
 class TagSerializer(ModelSerializer):
-    """Сериализатор для тегов."""
+    """Сериализатор для модели Tag."""
 
     class Meta:
         model = Tag
