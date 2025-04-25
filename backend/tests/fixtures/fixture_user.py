@@ -64,57 +64,6 @@ def second_user_client(second_user_token):
 
 
 @pytest.fixture
-def third_user(django_user_model):
-    return django_user_model.objects.create(
-        username="user3",
-        email="user3@email.ru",
-        password="user3password",
-        first_name="User",
-        last_name="Three",
-    )
-
-
-@pytest.fixture
-def third_user_token(third_user):
-    from rest_framework.authtoken.models import Token
-
-    return {
-        "auth_token": Token.objects.create(user=third_user),
-    }
-
-
-@pytest.fixture
-def third_user_client(third_user_token):
-    from rest_framework.test import APIClient
-
-    client = APIClient()
-    client.credentials(
-        HTTP_AUTHORIZATION=f"Token {third_user_token['auth_token']}",
-    )
-    return client
-
-
-@pytest.fixture
-def no_token_user(django_user_model):
-    return django_user_model.objects.create_user(
-        first_name="User",
-        last_name="NoToken",
-        username="user_no_token",
-        password="user_no_token_password",
-        email="absc@gmail.com",
-    )
-
-
-@pytest.fixture
-def no_token_user_client(no_token_user):
-    from rest_framework.test import APIClient
-
-    client = APIClient()
-    client.force_login(no_token_user)
-    return client
-
-
-@pytest.fixture
 def four_users():
     from django.contrib.auth import get_user_model
 

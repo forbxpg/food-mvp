@@ -69,3 +69,13 @@ def three_recipes_from_one_user(user, ingredient, tag):
         rec.tags.add(tag)
         rec.ingredients.add(ingredient)
     return recipes
+
+
+@pytest.fixture
+def subscription(user, second_user):
+    from users.models import Subscription
+
+    Subscription.objects.create(
+        subscribing=second_user,
+        subscriber=user,
+    )

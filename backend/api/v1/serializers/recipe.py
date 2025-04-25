@@ -119,32 +119,30 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             "text",
         )
 
-        def validate_tags(self, value):
-            if len(value) < 1:
-                raise serializers.ValidationError(
-                    _("Список тегов должен содержать хотя бы один элемент.")
-                )
-            tag_ids = [tag.id for tag in value]
-            if len(tag_ids) != len(set(tag_ids)):
-                raise serializers.ValidationError(_("Теги должны быть уникальными."))
-            return value
+    def validate_tags(self, value):
+        if len(value) < 1:
+            raise serializers.ValidationError(
+                _("Список тегов должен содержать хотя бы один элемент.")
+            )
+        tag_ids = [tag.id for tag in value]
+        if len(tag_ids) != len(set(tag_ids)):
+            raise serializers.ValidationError(_("Теги должны быть уникальными."))
+        return value
 
-        def validate_ingredients(self, value):
-            if len(value) < 1:
+    def validate_ingredients(self, value):
+        if len(value) < 1:
+            raise serializers.ValidationError(
+                _("Список ингредиентов должен содержать хотя бы один элемент.")
+            )
+        ingredient_ids = [ingredient["ingredient"].id for ingredient in value]
+        if len(ingredient_ids) != len(set(ingredient_ids)):
+            raise serializers.ValidationError(_("Ингредиенты должны быть уникальными."))
+        for ingredient in value:
+            if ingredient.get("amount") is None or ingredient.get("amount") <= 0:
                 raise serializers.ValidationError(
-                    _("Список ингредиентов должен содержать хотя бы один элемент.")
+                    _("Количество ингредиента должно быть больше нуля.")
                 )
-            ingredient_ids = [ingredient["ingredient"].id for ingredient in value]
-            if len(ingredient_ids) != len(set(ingredient_ids)):
-                raise serializers.ValidationError(
-                    _("Ингредиенты должны быть уникальными.")
-                )
-            for ingredient in value:
-                if ingredient.get("amount") is None or ingredient.get("amount") <= 0:
-                    raise serializers.ValidationError(
-                        _("Количество ингредиента должно быть больше нуля.")
-                    )
-            return value
+        return value
 
     def create(self, validated_data):
         """Переопределяет метод сохранения приходящих объектов при `POST`-запросе.
