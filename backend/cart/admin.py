@@ -1,3 +1,13 @@
 from django.contrib import admin
 
-# Register your models here.
+from cart.models import CartItem, Cart
+
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    fields = ("cart", "recipe")
+
+
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    fields = ("user",)

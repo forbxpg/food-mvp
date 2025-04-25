@@ -1,7 +1,8 @@
 """Модуль с ViewSet для ингредиентов."""
 
-from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 
+from api.v1.filters import IngredientFilter
 from api.v1.serializers import IngredientSerializer
 from api.v1.viewsets import RetrieveListViewSet
 from recipes.models import Ingredient
@@ -12,7 +13,5 @@ class IngredientViewSet(RetrieveListViewSet):
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (
-        filters.SearchFilter,  # чувствителен к регистру при использовании SQLite3
-    )
-    search_fields = ("^name",)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter

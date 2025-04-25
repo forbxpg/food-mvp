@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import AbstractUser
 
-from .models import User
+from .models import User, Subscription
 
 
 @admin.register(User)
@@ -12,7 +12,6 @@ class UserAdmin(admin.ModelAdmin):
         "last_name",
         "email",
         "avatar",
-        "is_subscribed",
         "is_staff",
         "is_active",
         "is_superuser",
@@ -25,3 +24,9 @@ class UserAdmin(admin.ModelAdmin):
         "first_name",
         "last_name",
     )
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    fields = ("subscriber", "subscribing")
+    list_display = ("subscriber", "subscribing")

@@ -1,12 +1,10 @@
 """Модуль сериализаторов для модели пользователя."""
 
-import base64
-
-from django.core.files.base import ContentFile
-from djoser.serializers import UserCreateSerializer, SetPasswordSerializer
+from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
 from rest_framework import serializers
 
-from users.models import User
+from api.v1.utils import Base64Field
+from users.models import User, Subscription
 
 
 class UserSetPasswordSerializer(SetPasswordSerializer):
@@ -19,21 +17,10 @@ class UserSetPasswordSerializer(SetPasswordSerializer):
         user.save()
 
 
-class AvatarBase64Field(serializers.ImageField):
-    def to_internal_value(self, data):
-        """Метод для преобразования данных аватара в Base64."""
-
-        if isinstance(data, str) and data.startswith("data:image"):
-            format, imgstr = data.split(";base64,")
-            ext = format.split("/")[-1]
-            data = ContentFile(base64.b64decode(imgstr), name=f"avatar.{ext}")
-        return super().to_internal_value(data)
-
-
 class UserAvatarSerializer(serializers.ModelSerializer):
     """Сериализатор для аватара пользователя."""
 
-    avatar = AvatarBase64Field(allow_null=True, required=False)
+    avatar = Base64Field(allow_null=True, required=True)
 
     class Meta:
         model = User
@@ -42,12 +29,14 @@ class UserAvatarSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """Метод для обновления данных пользователя."""
         if "avatar" in validated_data:
-            instance.avatar.delete(save=False)
+            instance.avatar.delete()
         return super().update(instance, validated_data)
 
 
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для модели пользователя."""
+
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -59,4 +48,28 @@ class UserSerializer(serializers.ModelSerializer):
             "username",
             "is_subscribed",
             "avatar",
+        )
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get("request").user
+        if user.is_anonymous or not user:
+            return False
+        return Subscription.objects.filter(
+            subscriber=user,
+            subscribing=obj,
+        ).exists()
+
+
+class UserCreationSerializer(UserCreateSerializer):
+    """Сериализатор для создания пользователя."""
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "username",
+            "password",
         )

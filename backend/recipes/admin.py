@@ -1,5 +1,8 @@
+"""Админка приложения recipes."""
+
 from django.contrib import admin
 
+from favorite.models import Favorite
 from .models import Tag, Ingredient, Recipe, RecipeIngredient
 
 
@@ -39,3 +42,16 @@ class IngredientInline(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline,)
+    list_display = (
+        "id",
+        "name",
+        "author",
+        "cooking_time",
+        "created_at",
+        "short_link",
+        "image",
+    )
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin): ...

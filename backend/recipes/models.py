@@ -1,3 +1,5 @@
+"""Модели приложения recipes."""
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -5,7 +7,6 @@ from django.utils.text import Truncator
 
 from core import config
 from users.models import User
-from .utils import IsFavoriteRecipe, IsInShoppingCart
 
 
 class Tag(models.Model):
@@ -16,45 +17,71 @@ class Tag(models.Model):
         max_length=config.TAG_FIELDS_LENGTHS,
         unique=True,
     )
-    slug = models.CharField(
+    slug = models.SlugField(
         _("Slug тега"),
         max_length=config.TAG_FIELDS_LENGTHS,
         unique=True,
         db_index=True,  # Индексация slug для быстрого поиска
     )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = _("Тег")
         verbose_name_plural = _("Теги")
-        ordering = ("-name",)
+        ordering = ("name",)
 
     def __str__(self):
         return f"Тег: {self.name}"
 
 
 class RecipeIngredient(models.Model):
-    """Промежуточная модель для связи рецепта и ингридиента."""
+    """Промежуточная модель для связи рецепта и ингредиента."""
 
-    ingredient = models.ForeignKey("Ingredient", on_delete=models.CASCADE)
-    recipe = models.ForeignKey("Recipe", on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(
+        "Ingredient",
+        on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(
+        "Recipe",
+        on_delete=models.CASCADE,
+    )
+    amount = models.PositiveSmallIntegerField(
+        _("Количество ингридиента"),
+        validators=[
+            MinValueValidator(1, message=_("Количество должно быть больше нуля.")),
+        ],
+        default=1,
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("recipe", "ingredient"),
+                name="unique_recipe_ingredient",
+            )
+        ]
+        default_related_name = "recipe_ingredients"
 
 
 class Ingredient(models.Model):
-    """Модель ингридиента в базе данных."""
+    """Модель ингредиента в базе данных."""
 
     name = models.CharField(
-        _("Название ингридиента"),
+        _("Название ингредиента"),
         max_length=config.INGREDIENT_NAME_LENGTH,
+        unique=True,
+        db_index=True,
     )
     measurement_unit = models.CharField(
         _("Единица измерения"),
         max_length=config.MEASUREMENT_UNIT_LENGTH,
     )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = _("Ингридиент")
         verbose_name_plural = _("Ингридиенты")
-        ordering = ("-name",)
+        ordering = ("name",)
 
     def __str__(self):
         return Truncator(f"Ингридиент: {self.name}").words(config.MAX_WORD_TRUNCATOR)
@@ -71,8 +98,6 @@ class Recipe(models.Model):
     image = models.ImageField(
         _("Изображение рецепта"),
         upload_to="recipes/images/",
-        blank=True,
-        null=True,
     )
     cooking_time = models.PositiveSmallIntegerField(
         _("Время приготовления"),
@@ -82,14 +107,6 @@ class Recipe(models.Model):
     )
     text = models.TextField(
         _("Описание рецепта"),
-    )
-    is_favorited = models.BooleanField(
-        _("В избранном"),
-        default=False,
-    )
-    is_in_shopping_cart = models.BooleanField(
-        _("В корзине"),
-        default=False,
     )
     author = models.ForeignKey(
         User,
@@ -105,11 +122,20 @@ class Recipe(models.Model):
         to=Tag,
         verbose_name=_("Теги"),
     )
+    short_link = models.SlugField(
+        _("Короткая ссылка"),
+        max_length=config.TAG_FIELDS_LENGTHS,
+        db_index=True,
+        blank=True,
+        null=True,
+    )
+    created_at = models.DateTimeField(_("Добавлено"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
 
     class Meta:
         verbose_name = _("Рецепт")
         verbose_name_plural = _("Рецепты")
-        ordering = ("-name",)
+        ordering = ("id",)
         default_related_name = "recipes"
 
     def __str__(self):
