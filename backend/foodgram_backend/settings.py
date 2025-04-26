@@ -119,7 +119,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = "/static/"
+STATIC_URL = "/django_static/"
 STATIC_ROOT = "/app/static/"
 
 SITE_URL = "http://127.0.0.1:8000"
