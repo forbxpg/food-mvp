@@ -1,13 +1,18 @@
 from django.contrib import admin
 
+from unfold.admin import ModelAdmin, TabularInline
+
 from cart.models import CartItem, Cart
 
 
-@admin.register(CartItem)
-class CartItemAdmin(admin.ModelAdmin):
-    fields = ("cart", "recipe")
+class CartItemInline(TabularInline):
+    model = CartItem
+    extra = 0
+    fk_name = "cart"
+    fields = ("recipe",)
 
 
 @admin.register(Cart)
-class CartAdmin(admin.ModelAdmin):
+class CartAdmin(ModelAdmin):
+    inlines = (CartItemInline,)
     fields = ("user",)

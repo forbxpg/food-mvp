@@ -40,17 +40,18 @@ class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         "Ingredient",
         on_delete=models.CASCADE,
+        verbose_name=_("Ингредиент"),
     )
     recipe = models.ForeignKey(
         "Recipe",
         on_delete=models.CASCADE,
+        verbose_name=_("Рецепт"),
     )
     amount = models.PositiveSmallIntegerField(
-        _("Количество ингридиента"),
+        _("Количество ингредиента"),
         validators=[
             MinValueValidator(1, message=_("Количество должно быть больше нуля.")),
         ],
-        default=1,
     )
 
     class Meta:
@@ -61,6 +62,14 @@ class RecipeIngredient(models.Model):
             )
         ]
         default_related_name = "recipe_ingredients"
+        verbose_name = _("Ингредиент в рецепте")
+        verbose_name_plural = _("Ингредиенты в рецепте")
+
+    def __str__(self):
+        """Возвращает строковое представление ингредиента в рецепте."""
+        return (
+            f"{self.ingredient.name} ({self.amount} {self.ingredient.measurement_unit})"
+        )
 
 
 class Ingredient(models.Model):
@@ -116,7 +125,7 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         to=Ingredient,
         through=RecipeIngredient,
-        verbose_name=_("Ингридиенты"),
+        verbose_name=_("Ингредиенты"),
     )
     tags = models.ManyToManyField(
         to=Tag,

@@ -9,6 +9,7 @@ cryptography==44.0.2
 defusedxml==0.7.1
 Django==4.2.20
 django-filter==25.1
+django-unfold==0.55.3
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0
 djoser==2.3.1

@@ -34,10 +34,7 @@ class FavoriteRecipe(models.Model):
         ]
 
     def __str__(self):
-        return (
-            f"Избранный рецепт: {self.recipe.name}",
-            f"в избранном {self.favorite.user.username}",
-        )
+        return f"{self.recipe.name} в избранном {self.favorite.user.username}"
 
 
 class Favorite(models.Model):
