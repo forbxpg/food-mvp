@@ -7,6 +7,7 @@ from rest_framework.serializers import ImageField
 
 
 class Base64Field(ImageField):
+
     def to_internal_value(self, data):
         """Метод для преобразования данных аватара в Base64."""
 

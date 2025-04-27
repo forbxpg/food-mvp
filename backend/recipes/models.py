@@ -1,5 +1,7 @@
 """Модели приложения recipes."""
 
+import secrets
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -18,7 +20,7 @@ class Tag(models.Model):
         unique=True,
     )
     slug = models.SlugField(
-        _("Slug тега"),
+        _("Идентификатор тега"),
         max_length=config.TAG_FIELDS_LENGTHS,
         unique=True,
         db_index=True,  # Индексация slug для быстрого поиска
@@ -50,7 +52,10 @@ class RecipeIngredient(models.Model):
     amount = models.PositiveSmallIntegerField(
         _("Количество ингредиента"),
         validators=[
-            MinValueValidator(1, message=_("Количество должно быть больше нуля.")),
+            MinValueValidator(
+                1,
+                message=_("Количество должно быть больше нуля."),
+            ),
         ],
     )
 
@@ -88,8 +93,8 @@ class Ingredient(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = _("Ингридиент")
-        verbose_name_plural = _("Ингридиенты")
+        verbose_name = _("Ингредиент")
+        verbose_name_plural = _("Ингредиенты")
         ordering = ("name",)
 
     def __str__(self):
@@ -131,22 +136,46 @@ class Recipe(models.Model):
         to=Tag,
         verbose_name=_("Теги"),
     )
-    short_link = models.SlugField(
-        _("Короткая ссылка"),
-        max_length=config.TAG_FIELDS_LENGTHS,
-        db_index=True,
-        blank=True,
-        null=True,
-    )
     created_at = models.DateTimeField(_("Добавлено"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
 
     class Meta:
         verbose_name = _("Рецепт")
         verbose_name_plural = _("Рецепты")
-        ordering = ("id",)
+        ordering = ("created_at",)
         default_related_name = "recipes"
 
     def __str__(self):
         """Возвращает строковое представление рецепта."""
         return Truncator(f"Рецепт: {self.name}").words(config.MAX_WORD_TRUNCATOR)
+
+
+class ShortLink(models.Model):
+    """Модель для хранения короткой ссылки на рецепт."""
+
+    recipe_id = models.PositiveSmallIntegerField(
+        _("ID рецепта"),
+        unique=True,
+        validators=[
+            MinValueValidator(
+                1,
+                message=_("ID рецепта должен быть больше нуля."),
+            ),
+        ],
+    )
+    short_link = models.CharField(
+        _("Короткая ссылка"),
+        max_length=config.SHORT_LINK_LENGTH,
+        default=secrets.token_urlsafe(config.SHORT_LINK_LENGTH),
+        unique=True,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Короткая ссылка")
+        verbose_name_plural = _("Короткие ссылки")
+
+    @property
+    def generate_code(self):
+        """Генерирует короткую ссылку на рецепт."""
+        return secrets.token_urlsafe(config.SHORT_LINK_LENGTH)

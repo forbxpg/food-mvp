@@ -9,13 +9,14 @@ from .cart import CartRecipeSerializer, CartItemSerializer
 from .favorite import FavoriteRecipeSerializer, FavoriteSerializer
 from .ingredient import IngredientSerializer
 from .tag import TagSerializer
-from .recipe import RecipeReadSerializer, RecipeWriteSerializer
+from .recipe import RecipeReadSerializer, RecipeWriteSerializer, ShortLinkSerializer
 
 
 __all__ = [
     "CartItemSerializer",
     "CartRecipeSerializer",
     "SubscriptionSerializer",
+    "ShortLinkSerializer",
     "UserSubscribersSerializer",
     "FavoriteRecipeSerializer",
     "FavoriteSerializer",

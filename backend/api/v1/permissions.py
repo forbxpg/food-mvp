@@ -7,6 +7,4 @@ class IsAuthorOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
     """Проверка прав доступа на авторство объекта."""
 
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS or request.user == obj.author:
-            return True
-        return False
+        return request.method in permissions.SAFE_METHODS or request.user == obj.author

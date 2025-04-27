@@ -1,3 +1,5 @@
+from django.conf import settings
+
 # User constants
 USERNAME_LENGTH = 150
 
@@ -19,4 +21,9 @@ PAGE_QUERY_PARAM = "page"
 PAGE_SIZE_QUERY_PARAM = "limit"
 MAX_PAGE_SIZE = 10
 
-SHORT_LINK_LENGTH = 5
+# Links
+SHORT_LINK_LENGTH = 3
+RECIPE_PATH_LENGTH = 255
+
+# Fixture path
+FIXTURE_PATH = settings.BASE_DIR / "fixtures"

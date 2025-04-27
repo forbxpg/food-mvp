@@ -1,26 +1,16 @@
 """Бизнес-логика API."""
 
-from uuid import uuid4
+import secrets
 
-from django.conf import settings
-
+from core import config
 from recipes.models import RecipeIngredient
-
-
-from core.config import SHORT_LINK_LENGTH
-
-
-def generate_short_link():
-    """Генерирует короткий слаг для рецепта."""
-    short_link = str(uuid4())[:SHORT_LINK_LENGTH]
-    return short_link, f"{settings.SITE_URL}/{short_link}"
 
 
 def bulk_create_recipe_ingredients(recipe, ingredients_data):
     """Создает объекты `RecipeIngredient` в БД.
 
-    :param recipe: Объект рецепта, к которому будут привязаны ингредиенты.
-    :param ingredients_data: Список ингредиентов для создания объектов.
+    :recipe - Объект рецепта, к которому будут привязаны ингредиенты.
+    :ingredients_data - Список ингредиентов для создания объектов.
     """
     RecipeIngredient.objects.bulk_create(
         [
@@ -32,3 +22,23 @@ def bulk_create_recipe_ingredients(recipe, ingredients_data):
             for ingredient_data in ingredients_data
         ]
     )
+
+
+def get_recipes_for_txt_file(user):
+    """Создает текстовый файл с рецептами из списка покупок пользователя."""
+    content = "Список покупок: \n\n"
+    for num, item in enumerate(user.cart_items.all()):
+        num += 1
+        recipe = item.recipe
+        content += f"{num}. {recipe.name}:\n"
+        content += f"    Ингредиенты:\n"
+        recipe_ingredient_data = RecipeIngredient.objects.select_related(
+            "recipe", "ingredient"
+        ).filter(recipe=recipe)
+        for obj in recipe_ingredient_data:
+            content += f"      - {obj.ingredient.name} – {obj.amount} {obj.ingredient.measurement_unit}.\n"
+    return content
+
+
+def generate_code():
+    return secrets.token_urlsafe(config.SHORT_LINK_LENGTH)

@@ -1,19 +1,17 @@
 from django_filters import rest_framework as api_filters
 
-from recipes.models import Recipe, Ingredient
-
-
-class CharInFilter(api_filters.BaseInFilter, api_filters.CharFilter):
-    """Фильтр для работы с CharField и списком значений."""
-
-    pass
+from recipes.models import Recipe, Ingredient, Tag
 
 
 class RecipeFilter(api_filters.FilterSet):
     """Фильтры для рецептов."""
 
     author = api_filters.CharFilter(field_name="author__id", lookup_expr="exact")
-    tags = CharInFilter(field_name="tags__slug", lookup_expr="in")
+    tags = api_filters.ModelMultipleChoiceFilter(
+        field_name="tags__slug",
+        to_field_name="slug",
+        queryset=Tag.objects.all(),
+    )
     is_favorited = api_filters.BooleanFilter(
         field_name="favorites", lookup_expr="isnull", exclude=True
     )

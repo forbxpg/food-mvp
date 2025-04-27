@@ -1,3 +1,5 @@
+"""Админка для управления пользователями."""
+
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
@@ -5,12 +7,11 @@ from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
 from unfold.admin import ModelAdmin, TabularInline
-from unfold.forms import UserChangeForm, UserCreationForm, AdminPasswordChangeForm
+from unfold.forms import UserChangeForm, AdminPasswordChangeForm
 
-from cart.models import Cart, CartItem
-from favorite.models import FavoriteRecipe, Favorite
+from cart.models import CartItem
+from favorite.models import FavoriteRecipe
 from recipes.models import Recipe
-from .models import Subscription
 
 
 User = get_user_model()
