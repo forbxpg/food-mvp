@@ -24,19 +24,33 @@ def bulk_create_recipe_ingredients(recipe, ingredients_data):
     )
 
 
-def get_recipes_for_txt_file(user):
-    """Создает текстовый файл с рецептами из списка покупок пользователя."""
-    content = "Список покупок: \n\n"
-    for num, item in enumerate(user.cart_items.all()):
-        num += 1
+def get_ingredients_data(cart_items):
+    ingredients_data = {}
+    for item in cart_items:
         recipe = item.recipe
-        content += f"{num}. {recipe.name}:\n"
-        content += f"    Ингредиенты:\n"
         recipe_ingredient_data = RecipeIngredient.objects.select_related(
-            "recipe", "ingredient"
-        ).filter(recipe=recipe)
+            "recipe",
+            "ingredient",
+        ).filter(
+            recipe=recipe,
+        )
+        print(recipe_ingredient_data)
         for obj in recipe_ingredient_data:
-            content += f"      - {obj.ingredient.name} – {obj.amount} {obj.ingredient.measurement_unit}.\n"
+            name = f"{obj.ingredient.name.capitalize()} ({obj.ingredient.measurement_unit})"
+            amount = int(obj.amount)
+            if not name in ingredients_data:
+                ingredients_data[name] = amount
+            else:
+                ingredients_data[name] += amount
+    return ingredients_data
+
+
+def get_content_for_txt_file(cart):
+    """Создает текстовый файл с рецептами из списка покупок пользователя."""
+    ingredients_data = get_ingredients_data(cart.cart_items.all())
+    content = "     Список покупок \n\n"
+    for ingredient, amount in ingredients_data.items():
+        content += f"   - {ingredient}: {amount}\n"
     return content
 
 
