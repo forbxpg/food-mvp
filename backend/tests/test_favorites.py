@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
-from favorite.models import Favorite, FavoriteRecipe
+from favorite.models import FavoriteRecipe
 
 
 @pytest.mark.django_db(transaction=True)

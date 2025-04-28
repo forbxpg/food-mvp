@@ -1,24 +1,27 @@
 """Админка приложения recipes."""
 
+from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
+from django.urls import reverse
 
-from favorite.models import Favorite
+from unfold.admin import ModelAdmin, TabularInline
+
 from .models import Tag, Ingredient, Recipe, RecipeIngredient
 
 
 @admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
+class TagAdmin(ModelAdmin):
     """Админка для тегов."""
 
     list_display = ("id", "name", "slug")
     search_fields = ("name", "slug")
-    list_filter = ("name",)
-    empty_value_display = "-пусто-"
-    list_editable = ("slug",)
+    list_display_links = ("name", "slug")
+    prepopulated_fields = {"slug": ("name",)}
 
 
 @admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
+class IngredientAdmin(ModelAdmin):
     """Админка для ингридиентов."""
 
     list_display = ("id", "name", "measurement_unit")
@@ -26,32 +29,50 @@ class IngredientAdmin(admin.ModelAdmin):
     list_filter = ("name",)
     empty_value_display = "-пусто-"
     list_editable = ("measurement_unit",)
+    list_display_links = ("id", "name")
 
 
-class RecipeIngredientInline(admin.TabularInline):
+class RecipeIngredientInline(TabularInline):
     model = RecipeIngredient
     extra = 0
     fk_name = "recipe"
-
-
-class IngredientInline(admin.TabularInline):
-    model = Ingredient
-    extra = 0
+    fields = (
+        "ingredient",
+        "amount",
+    )
 
 
 @admin.register(Recipe)
-class RecipeAdmin(admin.ModelAdmin):
+class RecipeAdmin(ModelAdmin):
     inlines = (RecipeIngredientInline,)
     list_display = (
         "id",
         "name",
-        "author",
+        "author_link",
         "cooking_time",
         "created_at",
-        "short_link",
-        "image",
+        "favorites_count",
     )
+    fields = (
+        "name",
+        "author",
+        "tags",
+        "text",
+        "cooking_time",
+        "image",
+        "favorites_count",
+    )
+    list_display_links = ("name",)
+    readonly_fields = ("favorites_count",)
 
+    def favorites_count(self, obj):
+        return obj.favorites.count()
 
-@admin.register(Favorite)
-class FavoriteAdmin(admin.ModelAdmin): ...
+    favorites_count.short_description = _("Добавлений в избранное")
+
+    def author_link(self, obj):
+        author_url = reverse("admin:users_user_change", args=(obj.author.id,))
+        return format_html('<a href="{}">{}</a>', author_url, obj.author)
+
+    author_link.short_description = _("Автор")
+    author_link.admin_order_field = "author"

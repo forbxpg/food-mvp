@@ -1,6 +1,6 @@
 import pytest
 
-from recipes.models import Ingredient, Tag, Recipe
+from recipes.models import Ingredient, Tag, Recipe, RecipeIngredient
 
 
 @pytest.fixture
@@ -46,7 +46,11 @@ def recipe(user, ingredient, tag):
             /9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
     )
     recipe.tags.add(tag)
-    recipe.ingredients.add(ingredient)
+    RecipeIngredient.objects.create(
+        recipe=recipe,
+        ingredient=ingredient,
+        amount=10,
+    )
     return recipe
 
 
@@ -67,7 +71,11 @@ def three_recipes_from_one_user(user, ingredient, tag):
     )
     for rec in recipes:
         rec.tags.add(tag)
-        rec.ingredients.add(ingredient)
+        RecipeIngredient.objects.create(
+            recipe=rec,
+            ingredient=ingredient,
+            amount=10,
+        )
     return recipes
 
 

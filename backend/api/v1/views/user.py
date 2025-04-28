@@ -1,5 +1,6 @@
 """Модуль представлений для пользователей."""
 
+from django.contrib.auth import get_user_model
 from rest_framework import status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -14,8 +15,10 @@ from api.v1.serializers import (
     UserSubscribersSerializer,
     UserCreationSerializer,
 )
-from users.models import User, Subscription
+from users.models import Subscription
 
+
+User = get_user_model()
 
 USER_ACTIONS_SERIALIZERS_MAPPING = {
     "create": UserCreationSerializer,
@@ -39,6 +42,7 @@ class UserViewSet(CreateRetrieveListViewSet):
         """Метод для получения сериализатора в зависимости от действия."""
         if self.action in USER_ACTIONS_SERIALIZERS_MAPPING:
             return USER_ACTIONS_SERIALIZERS_MAPPING[self.action]
+        return super().get_serializer_class()
 
     @action(
         methods=["get"],
@@ -60,11 +64,15 @@ class UserViewSet(CreateRetrieveListViewSet):
     def put_or_delete_avatar_action(self, request, *args, **kwargs):
         """Метод для получения и изменения аватара текущего пользователя."""
         if request.method == "PUT":
-            serializer = self.get_serializer(request.user, data=request.data)
+            serializer = self.get_serializer(
+                request.user,
+                data=request.data,
+            )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(
-                {"avatar": request.user.get_avatar_url}, status=status.HTTP_200_OK
+                {"avatar": request.user.get_avatar_url},
+                status=status.HTTP_200_OK,
             )
         elif request.method == "DELETE":
             if request.user.avatar:
@@ -81,7 +89,9 @@ class UserViewSet(CreateRetrieveListViewSet):
     def set_password_action(self, request, *args, **kwargs):
         """Метод для изменения пароля пользователя."""
         serializer = self.get_serializer(
-            request.user, data=request.data, context={"request": request}
+            request.user,
+            data=request.data,
+            context={"request": request},
         )
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
@@ -99,7 +109,11 @@ class UserViewSet(CreateRetrieveListViewSet):
         subscriptions_data = user.subscriptions.all()
         page = self.paginate_queryset(subscriptions_data)
         return self.get_paginated_response(
-            self.get_serializer(page, many=True, context={"request": request}).data,
+            self.get_serializer(
+                page,
+                many=True,
+                context={"request": request},
+            ).data,
         )
 
     @action(
@@ -124,7 +138,10 @@ class UserViewSet(CreateRetrieveListViewSet):
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+            )
         elif request.method == "DELETE":
             try:
                 user.subscriptions.get(

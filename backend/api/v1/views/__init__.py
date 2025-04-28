@@ -2,7 +2,7 @@ from .tag import TagViewSet
 from .cart import download_cart_api_view
 from .ingredient import IngredientViewSet
 from .user import UserViewSet
-from .recipe import RecipeViewSet
+from .recipe import RecipeViewSet, GetRecipeViaLinkAPIView
 
 
 __all__ = [
@@ -11,4 +11,5 @@ __all__ = [
     "IngredientViewSet",
     "UserViewSet",
     "RecipeViewSet",
+    "GetRecipeViaLinkAPIView",
 ]

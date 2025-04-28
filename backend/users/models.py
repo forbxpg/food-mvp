@@ -77,7 +77,7 @@ class Subscription(models.Model):
             models.CheckConstraint(
                 check=~models.Q(subscriber=models.F("subscribing")),
                 name="prevent_self_subscription",
-                violation_error_message=_("Нельзя подписаться на самого себя."),
+                violation_error_message=_("Нельзя подписаться на себя."),
             ),
         ]
         verbose_name = _("Подписка")

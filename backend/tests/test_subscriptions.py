@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 import pytest
-from black.cache import user_cache_dir
 
 from users.models import Subscription
 
