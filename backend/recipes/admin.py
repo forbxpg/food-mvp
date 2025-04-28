@@ -7,7 +7,6 @@ from django.urls import reverse
 
 from unfold.admin import ModelAdmin, TabularInline
 
-from favorite.models import Favorite, FavoriteRecipe
 from .models import Tag, Ingredient, Recipe, RecipeIngredient
 
 

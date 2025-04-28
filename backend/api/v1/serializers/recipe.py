@@ -39,7 +39,9 @@ class RecipeIngredientReadSerializer(serializers.ModelSerializer):
     """
 
     id = serializers.IntegerField(source="ingredient.id")
-    measurement_unit = serializers.CharField(source="ingredient.measurement_unit")
+    measurement_unit = serializers.CharField(
+        source="ingredient.measurement_unit",
+    )
     name = serializers.CharField(source="ingredient.name")
 
     class Meta:
@@ -82,7 +84,10 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get("request").user
         if user and user.is_authenticated:
-            return CartItem.objects.filter(cart__user=user, recipe=obj).exists()
+            return CartItem.objects.filter(
+                cart__user=user,
+                recipe=obj,
+            ).exists()
         return False
 
     def get_is_favorited(self, obj):
@@ -122,11 +127,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def validate_tags(self, value):
         if len(value) < 1:
             raise serializers.ValidationError(
-                _("Список тегов должен содержать хотя бы один элемент.")
+                _("Список тегов должен содержать хотя бы один элемент."),
             )
         tag_ids = [tag.id for tag in value]
         if len(tag_ids) != len(set(tag_ids)):
-            raise serializers.ValidationError(_("Теги должны быть уникальными."))
+            raise serializers.ValidationError(
+                _("Теги должны быть уникальными."),
+            )
         return value
 
     def validate_ingredients(self, value):
@@ -136,25 +143,35 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             )
         ingredient_ids = [ingredient["ingredient"].id for ingredient in value]
         if len(ingredient_ids) != len(set(ingredient_ids)):
-            raise serializers.ValidationError(_("Ингредиенты должны быть уникальными."))
+            raise serializers.ValidationError(
+                _("Ингредиенты должны быть уникальными."),
+            )
         for ingredient in value:
-            if ingredient.get("amount") is None or ingredient.get("amount") <= 0:
+            if (
+                ingredient.get("amount") is None
+                or ingredient.get("amount") <= 0
+            ):
                 raise serializers.ValidationError(
                     _("Количество ингредиента должно быть больше нуля.")
                 )
         return value
 
     def create(self, validated_data):
-        """Переопределяет метод сохранения приходящих объектов при `POST`-запросе.
+        """Переопределяет метод сохранения приходящих объектов
+        при `POST`-запросе.
 
         :param validated_data: Провалидированный словарь из `POST`-запроса.
-        :return: Созданный объект recipe в БД с заполненными `ingredients` и `tags`.
+        :return: Созданный объект recipe в БД с заполненными
+        `ingredients` и `tags`.
         """
         ingredients_data = validated_data.pop("recipe_ingredients")
         tags = validated_data.pop("tags")
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
-        bulk_create_recipe_ingredients(recipe=recipe, ingredients_data=ingredients_data)
+        bulk_create_recipe_ingredients(
+            recipe=recipe,
+            ingredients_data=ingredients_data,
+        )
         return recipe
 
     def update(self, instance, validated_data):
@@ -175,7 +192,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance = super().update(instance, validated_data)
         instance.recipe_ingredients.all().delete()
         bulk_create_recipe_ingredients(
-            recipe=instance, ingredients_data=ingredients_data
+            recipe=instance,
+            ingredients_data=ingredients_data,
         )
         return instance
 

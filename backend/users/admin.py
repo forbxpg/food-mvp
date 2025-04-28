@@ -114,5 +114,5 @@ class UserAdmin(UserAdmin, ModelAdmin):
         )
 
     subscribers_count.short_description = _("Количество подписчиков")
-    recipes_in_cart.short_description = _("Количество рецептов в корзине")
-    recipes_in_favorite.short_description = _("Количество рецептов в избранном")
+    recipes_in_cart.short_description = _("Рецептов в корзине")
+    recipes_in_favorite.short_description = _("Рецептов в избранном")

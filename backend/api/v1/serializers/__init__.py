@@ -4,12 +4,16 @@ from .user import (
     UserSetPasswordSerializer,
     UserCreationSerializer,
 )
-from .subscription import SubscriptionSerializer, UserSubscribersSerializer
 from .cart import CartRecipeSerializer, CartItemSerializer
 from .favorite import FavoriteRecipeSerializer, FavoriteSerializer
+from .subscription import SubscriptionSerializer, UserSubscribersSerializer
 from .ingredient import IngredientSerializer
 from .tag import TagSerializer
-from .recipe import RecipeReadSerializer, RecipeWriteSerializer, ShortLinkSerializer
+from .recipe import (
+    RecipeReadSerializer,
+    RecipeWriteSerializer,
+    ShortLinkSerializer,
+)
 
 
 __all__ = [

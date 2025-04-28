@@ -3,7 +3,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
-from cart.models import Cart, CartItem
+from cart.models import CartItem
 from recipes.models import Recipe
 
 

@@ -1,5 +1,6 @@
 """Модуль представлений для пользователей."""
 
+from django.contrib.auth import get_user_model
 from rest_framework import status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -14,8 +15,10 @@ from api.v1.serializers import (
     UserSubscribersSerializer,
     UserCreationSerializer,
 )
-from users.models import User, Subscription
+from users.models import Subscription
 
+
+User = get_user_model()
 
 USER_ACTIONS_SERIALIZERS_MAPPING = {
     "create": UserCreationSerializer,

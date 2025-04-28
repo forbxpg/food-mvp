@@ -2,13 +2,16 @@
 
 import secrets
 
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import Truncator
 
 from core import config
-from users.models import User
+
+
+User = get_user_model()
 
 
 class Tag(models.Model):
@@ -23,7 +26,7 @@ class Tag(models.Model):
         _("Идентификатор тега"),
         max_length=config.TAG_FIELDS_LENGTHS,
         unique=True,
-        db_index=True,  # Индексация slug для быстрого поиска
+        db_index=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -72,9 +75,7 @@ class RecipeIngredient(models.Model):
 
     def __str__(self):
         """Возвращает строковое представление ингредиента в рецепте."""
-        return (
-            f"{self.ingredient.name} ({self.amount} {self.ingredient.measurement_unit})"
-        )
+        return f"{self.recipe}: {self.ingredient.name} ({self.amount}"
 
 
 class Ingredient(models.Model):
@@ -98,7 +99,11 @@ class Ingredient(models.Model):
         ordering = ("name",)
 
     def __str__(self):
-        return Truncator(f"Ингридиент: {self.name}").words(config.MAX_WORD_TRUNCATOR)
+        return Truncator(
+            f"Ингридиент: {self.name}",
+        ).words(
+            config.MAX_WORD_TRUNCATOR,
+        )
 
 
 class Recipe(models.Model):
@@ -136,18 +141,28 @@ class Recipe(models.Model):
         to=Tag,
         verbose_name=_("Теги"),
     )
-    created_at = models.DateTimeField(_("Добавлено"), auto_now_add=True)
-    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+    created_at = models.DateTimeField(
+        _("Добавлено"),
+        auto_now_add=True,
+    )
+    updated_at = models.DateTimeField(
+        _("Обновлено"),
+        auto_now=True,
+    )
 
     class Meta:
         verbose_name = _("Рецепт")
         verbose_name_plural = _("Рецепты")
-        ordering = ("created_at",)
+        ordering = ("-created_at",)
         default_related_name = "recipes"
 
     def __str__(self):
         """Возвращает строковое представление рецепта."""
-        return Truncator(f"Рецепт: {self.name}").words(config.MAX_WORD_TRUNCATOR)
+        return Truncator(
+            f"Рецепт: {self.name}",
+        ).words(
+            config.MAX_WORD_TRUNCATOR,
+        )
 
 
 class ShortLink(models.Model):
