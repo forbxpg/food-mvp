@@ -7,7 +7,7 @@ from api.v1.views import GetRecipeViaLinkAPIView
 
 
 urlpatterns = [
-    path("f/<slug:short_link>/", GetRecipeViaLinkAPIView.as_view()),
+    path("f/<slug:short_link>", GetRecipeViaLinkAPIView.as_view()),
     path("admin/", admin.site.urls),
     path("api/", include("api.urls")),
 ]

@@ -1,6 +1,7 @@
 """Модели приложения recipes."""
 
-import secrets
+from random import choice
+from string import ascii_letters, digits
 
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
@@ -149,6 +150,12 @@ class Recipe(models.Model):
         _("Обновлено"),
         auto_now=True,
     )
+    link = models.CharField(
+        _("Короткая ссылка для рецепта"),
+        max_length=config.SHORT_LINK_LENGTH,
+        unique=True,
+        blank=True,
+    )
 
     class Meta:
         verbose_name = _("Рецепт")
@@ -169,35 +176,13 @@ class Recipe(models.Model):
             old_img = Recipe.objects.get(pk=self.pk).image
             if old_img and old_img != self.image:
                 old_img.delete(save=False)
+        if not self.link:
+            code = "".join(
+                choice(
+                    ascii_letters + digits
+                ) for _ in range(config.SHORT_LINK_LENGTH)
+            )
+            while not Recipe.objects.filter(link=code).exists():
+                self.link = code
+                break
         return super().save(*args, **kwargs)
-
-
-class ShortLink(models.Model):
-    """Модель для хранения короткой ссылки на рецепт."""
-
-    recipe_id = models.PositiveSmallIntegerField(
-        _("ID рецепта"),
-        unique=True,
-        validators=[
-            MinValueValidator(
-                1,
-                message=_("ID рецепта должен быть больше нуля."),
-            ),
-        ],
-    )
-    short_link = models.CharField(
-        _("Короткая ссылка"),
-        max_length=config.SHORT_LINK_LENGTH,
-        default=secrets.token_urlsafe(config.SHORT_LINK_LENGTH),
-        unique=True,
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = _("Короткая ссылка")
-        verbose_name_plural = _("Короткие ссылки")
-
-    @property
-    def generate_code(self):
-        """Генерирует короткую ссылку на рецепт."""
-        return secrets.token_urlsafe(config.SHORT_LINK_LENGTH)

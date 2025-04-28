@@ -1,11 +1,8 @@
 """Бизнес-логика API."""
 
-import secrets
-
 from django.db import transaction
 from django.db.utils import IntegrityError
 
-from core import config
 from recipes.models import RecipeIngredient
 
 
@@ -69,7 +66,3 @@ def get_content_for_txt_file(cart):
     for ingredient, amount in ingredients_data.items():
         content += f"- {ingredient}: {amount}\n"
     return content
-
-
-def generate_code():
-    return secrets.token_urlsafe(config.SHORT_LINK_LENGTH)
