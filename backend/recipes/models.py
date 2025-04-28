@@ -163,7 +163,7 @@ class Recipe(models.Model):
         ).words(
             config.MAX_WORD_TRUNCATOR,
         )
-    
+
     def save(self, *args, **kwargs):
         if self.pk:
             old_img = Recipe.objects.get(pk=self.pk).image
