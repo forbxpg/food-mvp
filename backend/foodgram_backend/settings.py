@@ -1,15 +1,21 @@
+import os
 from pathlib import Path
 
+from django.core.management.utils import get_random_secret_key
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 AUTH_USER_MODEL = "users.User"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-b85#9n319#n0&8kk2_6tz3@$hn&2s&zmsbtce3iq57@+j)25gw"
+SECRET_KEY = os.getenv("SECRET_KEY", get_random_secret_key())
 
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 INSTALLED_APPS = [
     "django.contrib.auth",
@@ -132,7 +138,7 @@ USE_TZ = True
 STATIC_URL = "/django_static/"
 STATIC_ROOT = "/app/static/"
 
-SITE_URL = "http://127.0.0.1:8000"
+SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"

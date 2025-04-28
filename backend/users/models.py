@@ -43,6 +43,13 @@ class User(AbstractUser):
             return f"{settings.SITE_URL}{self.avatar.url}"
         return None
 
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old_avatar = User.objects.get(pk=self.pk).avatar
+            if old_avatar and old_avatar != self.avatar:
+                old_avatar.delete(save=False)
+        super().save(*args, **kwargs)
+
 
 class Subscription(models.Model):
     """Модель подписки пользователя на другого пользователя.

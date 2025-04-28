@@ -163,6 +163,13 @@ class Recipe(models.Model):
         ).words(
             config.MAX_WORD_TRUNCATOR,
         )
+    
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old_img = Recipe.objects.get(pk=self.pk).image
+            if old_img and old_img != self.image:
+                old_img.delete(save=False)
+        return super().save(*args, **kwargs)
 
 
 class ShortLink(models.Model):
