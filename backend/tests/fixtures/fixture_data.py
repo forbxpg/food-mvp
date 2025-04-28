@@ -63,6 +63,7 @@ def three_recipes_from_one_user(user, ingredient, tag):
                 name=f"Test Recipe {i}",
                 text="Test text",
                 cooking_time=10,
+                link=f"link-{i}",
                 image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD// \
             /9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
             )

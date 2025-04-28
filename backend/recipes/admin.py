@@ -61,6 +61,7 @@ class RecipeAdmin(ModelAdmin):
         "cooking_time",
         "image",
         "favorites_count",
+        "link",
     )
     list_display_links = ("name",)
     readonly_fields = ("favorites_count",)

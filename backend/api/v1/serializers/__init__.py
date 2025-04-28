@@ -12,7 +12,6 @@ from .tag import TagSerializer
 from .recipe import (
     RecipeReadSerializer,
     RecipeWriteSerializer,
-    ShortLinkSerializer,
 )
 
 
@@ -20,7 +19,6 @@ __all__ = [
     "CartItemSerializer",
     "CartRecipeSerializer",
     "SubscriptionSerializer",
-    "ShortLinkSerializer",
     "UserSubscribersSerializer",
     "FavoriteRecipeSerializer",
     "FavoriteSerializer",

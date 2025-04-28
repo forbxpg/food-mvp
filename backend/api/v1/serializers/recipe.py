@@ -11,7 +11,7 @@ from api.v1.services import bulk_create_recipe_ingredients
 from api.v1.utils import Base64Field
 from cart.models import CartItem
 from favorite.models import FavoriteRecipe
-from recipes.models import Recipe, Tag, Ingredient, RecipeIngredient, ShortLink
+from recipes.models import Recipe, Tag, Ingredient, RecipeIngredient
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -199,24 +199,3 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return RecipeReadSerializer(instance, context=self.context).data
-
-
-class ShortLinkSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели `ShortLink`."""
-
-    short_link = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ShortLink
-        fields = ("short_link",)
-
-    def get_short_link(self, obj):
-        """Генерирует короткую ссылку на рецепт."""
-        request = self.context.get("request")
-        return request.build_absolute_uri(f"/f/{obj.short_link}")
-
-    def to_representation(self, instance):
-        """Переопределяет метод сериализации для получения короткой ссылки."""
-        return {
-            "short-link": self.get_short_link(instance),
-        }
