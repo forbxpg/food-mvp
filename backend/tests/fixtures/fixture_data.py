@@ -1,3 +1,4 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 import pytest
 
 from recipes.models import Ingredient, Tag, Recipe, RecipeIngredient
@@ -37,13 +38,17 @@ def tag_2():
 
 @pytest.fixture
 def recipe(user, ingredient, tag):
+    image = SimpleUploadedFile(
+        name="test_image.jpg",
+        content=b"binary image data",
+        content_type="image/jpeg",
+    )
     recipe = Recipe.objects.create(
         author=user,
         name="Test Recipe",
         text="Test text",
         cooking_time=10,
-        image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD// \
-            /9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+        image=image,
     )
     recipe.tags.add(tag)
     RecipeIngredient.objects.create(
@@ -56,6 +61,11 @@ def recipe(user, ingredient, tag):
 
 @pytest.fixture
 def three_recipes_from_one_user(user, ingredient, tag):
+    image = SimpleUploadedFile(
+        name="test_image.jpg",
+        content=b"binary image data",
+        content_type="image/jpeg",
+    )
     recipes = Recipe.objects.bulk_create(
         [
             Recipe(
@@ -63,9 +73,8 @@ def three_recipes_from_one_user(user, ingredient, tag):
                 name=f"Test Recipe {i}",
                 text="Test text",
                 cooking_time=10,
-                link=f"link-{i}",
-                image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD// \
-            /9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+                link=f"link{i}",
+                image=image,
             )
             for i in range(1, 4)
         ]
