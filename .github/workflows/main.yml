@@ -39,8 +39,10 @@ jobs:
           pip install -r backend/requirements.txt
       - name: Run tests and linting
         run: |
-          python -m flake8 backend/
-          python -m pytest backend/
+          cd backend
+          python manage.py migrate
+          python -m flake8
+          python -m pytest
   build_and_push_backend_to_dockerhub:
     name: Build backend`s image and push to Docker Hub
     runs-on: ubuntu-latest
