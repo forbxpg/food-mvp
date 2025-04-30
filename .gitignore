@@ -1,15 +1,18 @@
 frontend/node_modules
 infra/frontend/build
 .env
+backend/db.sqlite3
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
+.idea
+.idea/*
 # C extensions
 *.so
-
+.venv
 # Distribution / packaging
 .Python
 build/
