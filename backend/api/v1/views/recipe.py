@@ -143,5 +143,5 @@ class GetRecipeViaLinkAPIView(views.APIView):
             link=short_link,
         )
         return redirect(
-            f"{settings.SITE_URL}/recipes/{recipe.id}/",
+            f"/recipes/{recipe.id}",
         )

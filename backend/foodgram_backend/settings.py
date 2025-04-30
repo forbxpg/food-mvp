@@ -7,7 +7,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', default="http://127.0.0.1:8000").split(",")
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "CSRF_TRUSTED_ORIGINS", default="http://127.0.0.1:8000"
+).split(",")
 
 AUTH_USER_MODEL = "users.User"
 
