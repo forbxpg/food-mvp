@@ -6,7 +6,7 @@
 }
 
 .title {
-    font-family: "JetBrains Mono", sans-serif;
+    font-family: Menlo, sans-serif;
     font-style: normal;
     font-weight: 600;
     font-size: 48px;
@@ -18,7 +18,7 @@
 }
 
 .subtitle {
-    font-family: 'JetBrains Mono', Arial, Helvetica, sans-serif;
+    font-family: Menlo, Arial, Helvetica, sans-serif;
     font-style: normal;
     font-weight: 600;
     font-size: 30px;
@@ -28,7 +28,7 @@
 }
 
 .text {
-    font-family: 'JetBrains Mono', Arial, Helvetica, sans-serif;
+    font-family: Menlo, Arial, Helvetica, sans-serif;
     font-style: italic;
     font-weight: 500;
     font-size: 18px;

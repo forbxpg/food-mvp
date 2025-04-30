@@ -43,6 +43,9 @@ const About = ({ updateOrders, orders }) => {
                         Добавление возможности лайкать комментарии других пользователей.
                     </li>
                     <li className={styles.textItem}>
+                        Добавление более защищенной аутентификации с помощью JWT-токенов.
+                    </li>
+                    <li className={styles.textItem}>
                         Подключение Twilio для регистрации и аутентификации с помощью телефона.
                     </li>
                     <li className={styles.textItem}>

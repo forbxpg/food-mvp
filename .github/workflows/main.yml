@@ -129,6 +129,15 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: ./infra/nginx.conf
           target: ${{ secrets.DEPLOY_PATH }}
+      - name: Copy docs to the server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: ./docs/
+          target: ${{ secrets.DEPLOY_PATH }}
       - name: Execute the commands
         uses: appleboy/ssh-action@master
         with:
