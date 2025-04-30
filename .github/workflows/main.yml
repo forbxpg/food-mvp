@@ -78,7 +78,7 @@ jobs:
           cd frontend/
           npm install
       - name: Test Frontend
-        continue_on_error: true
+        continue-on-error: true
         run: |
           cd frontend/
           npm run test
