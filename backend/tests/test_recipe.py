@@ -74,7 +74,9 @@ class TestRecipesListCreate:
         client,
         recipe,
     ):
-        """Проверка доступности детальной информации о рецепте для анонимного пользователя."""
+        """Проверка доступности детальной информации
+        о рецепте для анонимного пользователя.
+        """
         response = client.get(self.recipe_detail_url.format(id=recipe.id))
         assert response.status_code == HTTPStatus.OK
         assert response.data["id"] == recipe.id
@@ -84,8 +86,12 @@ class TestRecipesListCreate:
         user_client,
         recipe,
     ):
-        """Проверка доступности детальной информации о рецепте для авторизованного пользователя."""
-        response = user_client.get(self.recipe_detail_url.format(id=recipe.id))
+        """Проверка доступности детальной информации
+        о рецепте для авторизованного пользователя.
+        """
+        response = user_client.get(
+            self.recipe_detail_url.format(id=recipe.id),
+        )
         assert response.status_code == HTTPStatus.OK
         assert response.data["id"] == recipe.id
 
@@ -99,7 +105,12 @@ class TestRecipesListCreate:
         response = user_client.post(self.recipe_list_url, data={})
         assert response.status_code == HTTPStatus.BAD_REQUEST
 
-    def test_recipe_create_with_valid_data(self, user_client, tag, ingredient_2):
+    def test_recipe_create_with_valid_data(
+        self,
+        user_client,
+        tag,
+        ingredient_2,
+    ):
         data = {
             "name": "Test Recipe",
             "text": "Test text",
@@ -111,8 +122,10 @@ class TestRecipesListCreate:
                     "amount": 2,
                 },
             ],
-            "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD// \
-            /9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+            "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA \
+AEAAAABAgMAAABieywaAAAACVBMVEUAAAD// \
+/9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACkl \
+EQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
         }
         response = user_client.post(
             self.recipe_list_url,

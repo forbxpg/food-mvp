@@ -22,7 +22,13 @@ class TestCartItems:
         response = user_client.post(self.cart_url.format(id=recipe.id))
         assert response.status_code == HTTPStatus.CREATED
         assert response.data["id"] == recipe.id
-        assert CartItem.objects.filter(recipe=recipe, cart__user=user).exists() is True
+        assert (
+            CartItem.objects.filter(
+                recipe=recipe,
+                cart__user=user,
+            ).exists()
+            is True
+        )
 
     def test_add_non_existing_recipe_to_cart(self, user_client):
         response = user_client.post(self.cart_url.format(id=9999))

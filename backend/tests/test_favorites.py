@@ -51,7 +51,12 @@ class TestFavoriteRecipes:
         response = client.delete(self.favorite_url.format(id=recipe.id))
         assert response.status_code == HTTPStatus.UNAUTHORIZED
 
-    def test_remove_recipe_from_favorites_auth(self, user, user_client, recipe):
+    def test_remove_recipe_from_favorites_auth(
+        self,
+        user,
+        user_client,
+        recipe,
+    ):
         response = user_client.post(self.favorite_url.format(id=recipe.id))
         assert response.status_code == HTTPStatus.CREATED
         assert FavoriteRecipe.objects.filter(

@@ -102,8 +102,10 @@ class TestUsersUpdateDeleteList:
         response = user_client.put(
             self.user_avatar_url,
             data={
-                "avatar": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD// \
-                        /9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=="
+                "avatar": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAA \
+AABAgMAAABieywaAAAACVBMVEUAAAD// \
+/9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVK \
+w4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=="
             },
         )
         assert response.status_code == HTTPStatus.OK

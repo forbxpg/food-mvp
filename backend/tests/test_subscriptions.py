@@ -127,9 +127,10 @@ class TestSubscriptions:
         subscription_list_response = user_client.get(
             self.subscriptions_list_url,
         )
+        data = subscription_list_response.data["results"][0]["id"]
         assert subscription_list_response.status_code == HTTPStatus.OK
         assert len(subscription_list_response.data["results"]) == 1
-        assert subscription_list_response.data["results"][0]["id"] == second_user.id
+        assert data == second_user.id
 
         delete_response = user_client.delete(
             self.subscribe_url.format(id=second_user.id),
