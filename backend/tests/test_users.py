@@ -109,7 +109,9 @@ w4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=="
             },
         )
         assert response.status_code == HTTPStatus.OK
-        get_avatar_response = user_client.get(self.users_detail_url.format(id=user.id))
+        get_avatar_response = user_client.get(
+            self.users_detail_url.format(id=user.id)
+        )
         print(get_avatar_response.data)
         assert get_avatar_response.status_code == HTTPStatus.OK
         assert (

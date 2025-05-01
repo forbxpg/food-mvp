@@ -114,7 +114,9 @@ class TestSubscriptions:
             self.subscribe_url.format(id=second_user.id),
             data={},
         )
-        assert subscription_response.status_code == HTTPStatus.CREATED
+        assert (
+            subscription_response.status_code == HTTPStatus.CREATED
+        )
         assert subscription_response.data["id"] == second_user.id
         assert (
             Subscription.objects.filter(
@@ -191,7 +193,9 @@ class TestSubscriptions:
         first_user_subscribe_response = user_client.post(
             self.subscribe_url.format(id=second_user.id),
         )
-        assert first_user_subscribe_response.status_code == HTTPStatus.CREATED
+        assert (
+            first_user_subscribe_response.status_code == HTTPStatus.CREATED
+        )
         assert first_user_subscribe_response.data["id"] == second_user.id
         assert (
             Subscription.objects.filter(
