@@ -1,10 +1,11 @@
 """Модуль с ViewSet для ингредиентов."""
 
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.viewsets import ReadOnlyModelViewSet
+
 from api.v1.filters import IngredientFilter
 from api.v1.serializers import IngredientSerializer
-from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Ingredient
-from rest_framework.viewsets import ReadOnlyModelViewSet
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):

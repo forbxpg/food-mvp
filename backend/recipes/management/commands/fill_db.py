@@ -1,8 +1,9 @@
 """Команда для заполнения базы данных данными из json файла."""
 
-from core.config import FIXTURE_PATH
 from django.core.management.base import BaseCommand
 from django.db import transaction
+
+from core.config import FIXTURE_PATH
 from recipes.models import Ingredient
 
 
@@ -17,7 +18,10 @@ def get_data(filename):
     except FileNotFoundError:
         raise FileNotFoundError(f"Файл {filename} не найден")
     except json.JSONDecodeError as e:
-        raise json.JSONDecodeError("Ошибка декодирования JSON", e)
+        raise json.JSONDecodeError(
+            "Ошибка декодирования JSON",
+            e,
+        )
 
 
 class Command(BaseCommand):

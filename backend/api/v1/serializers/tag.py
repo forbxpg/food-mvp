@@ -1,7 +1,8 @@
 """Модуль сериализаторов для тегов."""
 
-from recipes.models import Tag
 from rest_framework.serializers import ModelSerializer
+
+from recipes.models import Tag
 
 
 class TagSerializer(ModelSerializer):

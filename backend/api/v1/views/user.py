@@ -1,14 +1,20 @@
 """Модуль представлений для пользователей."""
 
-from api.v1.pagination import BasePageNumberPagination
-from api.v1.serializers import (SubscriptionSerializer, UserAvatarSerializer,
-                                UserCreationSerializer, UserSerializer)
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from api.v1.pagination import BasePageNumberPagination
+from api.v1.serializers import (
+    SubscriptionSerializer,
+    UserAvatarSerializer,
+    UserCreationSerializer,
+    UserSerializer,
+)
 from users.models import Subscription
+
 
 User = get_user_model()
 

@@ -1,9 +1,10 @@
 """Сериализаторы для модели избранного."""
 
-from api.v1.utils import BaseRecipeReadSerializer
 from django.utils.translation import gettext_lazy as _
-from favorite.models import Favorite
 from rest_framework import serializers
+
+from api.v1.utils import BaseRecipeReadSerializer
+from favorite.models import Favorite
 
 
 class FavoriteWriteSerializer(serializers.ModelSerializer):

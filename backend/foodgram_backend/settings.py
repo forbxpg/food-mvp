@@ -4,6 +4,7 @@ from pathlib import Path
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 CSRF_TRUSTED_ORIGINS = os.environ.get(
@@ -19,6 +20,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY", get_random_secret_key())
 SITE_URL = os.environ.get("SITE_URL", "http://127.0.0.1:8000")
 
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+
+if DEBUG:
+    SITE_URL = "http://127.0.0.1:8000"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 

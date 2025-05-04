@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 import pytest
+
 from users.models import Subscription
 
 

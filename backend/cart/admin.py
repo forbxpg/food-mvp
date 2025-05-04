@@ -1,8 +1,9 @@
 """Админка для корзины."""
 
-from cart.models import Cart
 from django.contrib import admin
 from unfold.admin import ModelAdmin
+
+from cart.models import Cart
 
 
 @admin.register(Cart)

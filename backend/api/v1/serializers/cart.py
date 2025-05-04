@@ -1,9 +1,10 @@
 """Сериализаторы для модели корзины."""
 
-from api.v1.utils import BaseRecipeReadSerializer
-from cart.models import Cart
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+
+from api.v1.utils import BaseRecipeReadSerializer
+from cart.models import Cart
 
 
 class CartWriteSerializer(serializers.ModelSerializer):

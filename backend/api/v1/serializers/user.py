@@ -1,10 +1,12 @@
 """Модуль сериализаторов для модели пользователя."""
 
-from api.v1.utils import Base64Field
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer
 from rest_framework import serializers
+
 from users.models import Subscription
+from api.v1.utils import Base64Field
+
 
 User = get_user_model()
 

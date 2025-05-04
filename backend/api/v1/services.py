@@ -2,6 +2,7 @@
 
 from django.db.models import CharField, F, Sum, Value
 from django.db.models.functions.text import Concat
+
 from recipes.models import RecipeIngredient
 
 

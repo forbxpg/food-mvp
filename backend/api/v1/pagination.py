@@ -1,7 +1,8 @@
 """Модуль классов пагинации."""
 
-from core import config
 from rest_framework.pagination import PageNumberPagination
+
+from core import config
 
 
 class BasePageNumberPagination(PageNumberPagination):
