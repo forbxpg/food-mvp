@@ -19,8 +19,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", get_random_secret_key())
 
 SITE_URL = os.environ.get("SITE_URL", "http://127.0.0.1:8000")
 
-# DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
@@ -89,9 +88,8 @@ DATABASES = {
     }
 }
 
-USE_SQLITE = os.environ.get("USE_SQLITE", False)
 
-if USE_SQLITE:
+if os.environ.get("USE_SQLITE", False):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
