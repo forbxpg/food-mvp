@@ -18,7 +18,10 @@ def get_data(filename):
     except FileNotFoundError:
         raise FileNotFoundError(f"Файл {filename} не найден")
     except json.JSONDecodeError as e:
-        raise json.JSONDecodeError("Ошибка декодирования JSON", e)
+        raise json.JSONDecodeError(
+            "Ошибка декодирования JSON",
+            e,
+        )
 
 
 class Command(BaseCommand):

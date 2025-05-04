@@ -6,17 +6,16 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
+from cart.models import Cart
+from favorite.models import Favorite
+from recipes.models import Recipe
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.forms import (
-    UserChangeForm,
     AdminPasswordChangeForm,
+    UserChangeForm,
     UserCreationForm,
 )
-
-from cart.models import CartItem
-from favorite.models import FavoriteRecipe
-from recipes.models import Recipe
-
+from users.models import Subscription
 
 User = get_user_model()
 
@@ -30,6 +29,15 @@ class RecipeInline(TabularInline):
     fields = (
         "name",
         "cooking_time",
+    )
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(ModelAdmin):
+    list_display = (
+        "subscriber",
+        "subscribing",
+        "created_at",
     )
 
 
@@ -99,21 +107,21 @@ class UserAdmin(UserAdmin, ModelAdmin):
 
     def recipes_in_cart(self, obj):
         return (
-            CartItem.objects.select_related(
-                "cart__user",
+            Cart.objects.select_related(
+                "user",
                 "recipe",
             )
-            .filter(cart__user=obj)
+            .filter(user=obj)
             .count()
         )
 
     def recipes_in_favorite(self, obj):
         return (
-            FavoriteRecipe.objects.select_related(
-                "favorite__user",
+            Favorite.objects.select_related(
+                "user",
                 "recipe",
             )
-            .filter(favorite__user=obj)
+            .filter(user=obj)
             .count()
         )
 

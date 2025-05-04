@@ -1,13 +1,12 @@
 """Админка приложения recipes."""
 
-from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.urls import reverse
-
+from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin, TabularInline
 
-from .models import Tag, Ingredient, Recipe, RecipeIngredient
+from .models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
 @admin.register(Tag)
@@ -40,6 +39,7 @@ class RecipeIngredientInline(TabularInline):
         "ingredient",
         "amount",
     )
+    min_num = 1
 
 
 @admin.register(Recipe)
@@ -72,8 +72,15 @@ class RecipeAdmin(ModelAdmin):
     favorites_count.short_description = _("Добавлений в избранное")
 
     def author_link(self, obj):
-        author_url = reverse("admin:users_user_change", args=(obj.author.id,))
-        return format_html('<a href="{}">{}</a>', author_url, obj.author)
+        author_url = reverse(
+            "admin:users_user_change",
+            args=(obj.author.id,),
+        )
+        return format_html(
+            '<a href="{}">{}</a>',
+            author_url,
+            obj.author,
+        )
 
     author_link.short_description = _("Автор")
     author_link.admin_order_field = "author"
