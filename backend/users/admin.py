@@ -5,17 +5,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
-
-from unfold.admin import ModelAdmin, TabularInline
-from unfold.forms import (
-    UserChangeForm,
-    AdminPasswordChangeForm,
-    UserCreationForm,
-)
-
 # from cart.models import CartItem
 # from favorite.models import FavoriteRecipe
 from recipes.models import Recipe
+from unfold.admin import ModelAdmin, TabularInline
+from unfold.forms import (AdminPasswordChangeForm, UserChangeForm,
+                          UserCreationForm)
 from users.models import Subscription
 
 User = get_user_model()

@@ -1,15 +1,9 @@
 """URLs for the API v1."""
 
-from django.urls import path, include
+from api.v1.views import (IngredientViewSet, RecipeViewSet, TagViewSet,
+                          UserViewSet)
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-
-from api.v1.views import (
-    IngredientViewSet,
-    RecipeViewSet,
-    TagViewSet,
-    UserViewSet,
-)
-
 
 v1_router = DefaultRouter()
 

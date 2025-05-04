@@ -1,14 +1,12 @@
 """Модели приложения recipes."""
 
-from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db import models, transaction, IntegrityError
-from django.utils.crypto import get_random_string
-from django.utils.translation import gettext_lazy as _
-from django.utils.text import Truncator
-
 from core import config
-
+from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from django.utils.crypto import get_random_string
+from django.utils.text import Truncator
+from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 

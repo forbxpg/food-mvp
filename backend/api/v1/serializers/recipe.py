@@ -1,17 +1,13 @@
 """Модуль сериализаторов для модели рецепта."""
 
-from django.utils.translation import gettext_lazy as _
-from django.db import transaction
-from rest_framework import serializers
-
-from api.v1.serializers import (
-    TagSerializer,
-    UserSerializer,
-)
+from api.v1.serializers import TagSerializer, UserSerializer
 from api.v1.utils import Base64Field
 from cart.models import Cart
+from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 from favorite.models import Favorite
-from recipes.models import Recipe, Tag, Ingredient, RecipeIngredient
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from rest_framework import serializers
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -181,7 +177,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             ingredients_data=ingredients_data,
         )
         return recipe
-    
 
     @transaction.atomic()
     def update(self, instance, validated_data):

@@ -1,14 +1,11 @@
 """Модуль сериализаторов для подписок."""
 
+from api.v1.serializers import UserSerializer
+from api.v1.utils import BaseRecipeReadSerializer
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
-
-from api.v1.serializers import UserSerializer
-from api.v1.utils import BaseRecipeReadSerializer
-from recipes.models import Recipe
 from users.models import Subscription
-
 
 User = get_user_model()
 

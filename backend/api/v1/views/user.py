@@ -1,22 +1,14 @@
 """Модуль представлений для пользователей."""
 
+from api.v1.pagination import BasePageNumberPagination
+from api.v1.serializers import (SubscriptionSerializer, UserAvatarSerializer,
+                                UserCreationSerializer, UserSerializer)
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet as DjoserUserViewSet
-from rest_framework import status, permissions
+from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
-from api.v1.viewsets import CreateRetrieveListViewSet
-from api.v1.pagination import BasePageNumberPagination
-from api.v1.serializers import (
-    SubscriptionSerializer,
-    SubscriptionReadSerializer,
-    UserSerializer,
-    UserAvatarSerializer,
-    UserCreationSerializer,
-)
 from users.models import Subscription
-
 
 User = get_user_model()
 
@@ -89,7 +81,6 @@ class UserViewSet(DjoserUserViewSet):
             user.avatar.delete(save=False)
         user.avatar = None
         user.save()
-        serializer = self.get_serializer(user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(

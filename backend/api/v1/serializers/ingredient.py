@@ -1,8 +1,7 @@
 """Модуль сериализаторов для ингредиентов."""
 
-from rest_framework.serializers import ModelSerializer
-
 from recipes.models import Ingredient
+from rest_framework.serializers import ModelSerializer
 
 
 class IngredientSerializer(ModelSerializer):

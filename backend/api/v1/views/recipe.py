@@ -1,28 +1,22 @@
 """Модуль представлений для работы с рецептами."""
 
-from django.conf import settings
-from django.http.response import HttpResponse
-from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import gettext_lazy as _
-from rest_framework import permissions, status, viewsets, views
-from rest_framework.decorators import action
-from rest_framework.response import Response
-
 from api.v1.filters import RecipeFilter
-from api.v1.serializers import (
-    CartWriteSerializer,
-    FavoriteWriteSerializer,
-    RecipeReadSerializer,
-    RecipeWriteSerializer,
-)
 from api.v1.pagination import BasePageNumberPagination
 from api.v1.permissions import IsAuthorOrReadOnly
+from api.v1.serializers import (CartWriteSerializer, FavoriteWriteSerializer,
+                                RecipeReadSerializer, RecipeWriteSerializer)
 from api.v1.services import get_content_for_txt_file
 from cart.models import Cart
+from django.conf import settings
+from django.http.response import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.utils.translation import gettext_lazy as _
+from django_filters.rest_framework import DjangoFilterBackend
 from favorite.models import Favorite
 from recipes.models import Recipe
-
+from rest_framework import permissions, status, views, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 RECIPE_ACTIONS_SERIALIZERS_MAPPING = {
     "list": RecipeReadSerializer,
@@ -123,7 +117,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Метод для получения короткой ссылки на рецепт."""
         return Response(
             data={
-                "short-link": f"{settings.SITE_URL}/f/{self.get_object().link}",
+                "short-link": f"{settings.SITE_URL}/f/"
+                              f"{self.get_object().link}",
             },
             status=status.HTTP_200_OK,
         )

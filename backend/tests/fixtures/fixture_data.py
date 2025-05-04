@@ -1,7 +1,6 @@
-from django.core.files.uploadedfile import SimpleUploadedFile
 import pytest
-
-from recipes.models import Ingredient, Tag, Recipe, RecipeIngredient
+from django.core.files.uploadedfile import SimpleUploadedFile
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
 @pytest.fixture

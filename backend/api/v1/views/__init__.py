@@ -1,8 +1,7 @@
-from .tag import TagViewSet
 from .ingredient import IngredientViewSet
+from .recipe import GetRecipeViaLinkAPIView, RecipeViewSet
+from .tag import TagViewSet
 from .user import UserViewSet
-from .recipe import RecipeViewSet, GetRecipeViaLinkAPIView
-
 
 __all__ = [
     "TagViewSet",

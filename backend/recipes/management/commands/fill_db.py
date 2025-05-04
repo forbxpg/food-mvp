@@ -1,9 +1,8 @@
 """Команда для заполнения базы данных данными из json файла."""
 
+from core.config import FIXTURE_PATH
 from django.core.management.base import BaseCommand
 from django.db import transaction
-
-from core.config import FIXTURE_PATH
 from recipes.models import Ingredient
 
 

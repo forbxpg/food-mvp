@@ -1,9 +1,8 @@
 """Модуль для работы с тегами."""
 
-from rest_framework.viewsets import ReadOnlyModelViewSet
-
 from api.v1.serializers import TagSerializer
 from recipes.models import Tag
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 
 class TagViewSet(ReadOnlyModelViewSet):
