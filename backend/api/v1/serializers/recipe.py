@@ -1,24 +1,24 @@
 """Модуль сериализаторов для модели рецепта."""
 
 from django.utils.translation import gettext_lazy as _
+from django.db import transaction
 from rest_framework import serializers
 
 from api.v1.serializers import (
     TagSerializer,
     UserSerializer,
 )
-from api.v1.services import bulk_create_recipe_ingredients
 from api.v1.utils import Base64Field
-from cart.models import CartItem
-from favorite.models import FavoriteRecipe
+from cart.models import Cart
+from favorite.models import Favorite
 from recipes.models import Recipe, Tag, Ingredient, RecipeIngredient
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
-    """Класс для сериализации объектов промежуточной модели `RecipeIngredient`.
+    """Класс для сериализации объектов промежуточной модели RecipeIngredient.
 
-    Используется для сериализации `ingredients` приходящих в POST/PUT запросах.
-    Поле `id` представляет собой объект из `queryset` модели `Ingredient`.
+    Используется для сериализации ingredients приходящих в POST/PUT запросах.
+    Поле id представляет собой объект из queryset модели Ingredient.
     """
 
     id = serializers.PrimaryKeyRelatedField(
@@ -82,27 +82,32 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         )
 
     def get_is_in_shopping_cart(self, obj):
-        user = self.context.get("request").user
-        if user and user.is_authenticated:
-            return CartItem.objects.filter(
-                cart__user=user,
+        request = self.context.get("request", None)
+        return bool(
+            request is not None
+            and request.user.is_authenticated
+            and Cart.objects.filter(
+                user=request.user,
                 recipe=obj,
             ).exists()
-        return False
+        )
 
     def get_is_favorited(self, obj):
-        user = self.context.get("request").user
-        if user and user.is_authenticated:
-            return FavoriteRecipe.objects.filter(
-                favorite__user=user, recipe=obj
+        request = self.context.get("request", None)
+        return bool(
+            request is not None
+            and request.user.is_authenticated
+            and Favorite.objects.filter(
+                user=request.user,
+                recipe=obj,
             ).exists()
-        return False
+        )
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
     """Класс для сериализации рецептов при `POST`/`PUT` запросах."""
 
-    image = Base64Field(required=True)
+    image = Base64Field(required=True, allow_null=False)
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all(),
@@ -110,6 +115,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientSerializer(
         many=True,
         source="recipe_ingredients",
+    )
+    author = serializers.HiddenField(
+        write_only=True,
+        default=serializers.CurrentUserDefault(),
     )
 
     class Meta:
@@ -122,80 +131,90 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             "ingredients",
             "tags",
             "text",
+            "author",
         )
 
-    def validate_tags(self, value):
-        if len(value) < 1:
+    def validate_image(self, value):
+        """Проверяет корректность поля `image`."""
+        if not value:
             raise serializers.ValidationError(
-                _("Список тегов должен содержать хотя бы один элемент."),
+                _("Поле image не может быть пустым."),
             )
-        tag_ids = [tag.id for tag in value]
+        return value
+
+    def validate(self, attrs):
+        """Переопределяет метод валидации приходящих объектов
+        при `POST`/`PUT` запросах."""
+        tags = attrs.get("tags")
+        ingredients = attrs.get("recipe_ingredients")
+        if not tags:
+            raise serializers.ValidationError(
+                _("Необходимо указать список тегов."),
+            )
+        tag_ids = [tags.id for tags in tags]
         if len(tag_ids) != len(set(tag_ids)):
             raise serializers.ValidationError(
                 _("Теги должны быть уникальными."),
             )
-        return value
-
-    def validate_ingredients(self, value):
-        if len(value) < 1:
+        if not ingredients:
             raise serializers.ValidationError(
-                _("Список ингредиентов должен содержать хотя бы один элемент.")
+                _("Необходимо указать список ингредиентов."),
             )
-        ingredient_ids = [ingredient["ingredient"].id for ingredient in value]
+        ingredient_ids = [
+            ingredient["ingredient"].id for ingredient in ingredients
+        ]
         if len(ingredient_ids) != len(set(ingredient_ids)):
             raise serializers.ValidationError(
                 _("Ингредиенты должны быть уникальными."),
             )
-        for ingredient in value:
-            if (
-                ingredient.get("amount") is None
-                or ingredient.get("amount") <= 0
-            ):
-                raise serializers.ValidationError(
-                    _("Количество ингредиента должно быть больше нуля.")
-                )
-        return value
+        return super().validate(attrs)
 
+    @transaction.atomic()
     def create(self, validated_data):
-        """Переопределяет метод сохранения приходящих объектов
-        при `POST`-запросе.
-
-        :param validated_data: Провалидированный словарь из `POST`-запроса.
-        :return: Созданный объект recipe в БД с заполненными
-        `ingredients` и `tags`.
-        """
+        """Переопределяет метод сохранения рецептов при POST-запросах."""
         ingredients_data = validated_data.pop("recipe_ingredients")
         tags = validated_data.pop("tags")
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
-        bulk_create_recipe_ingredients(
+        self.bulk_create_recipe_ingredients(
             recipe=recipe,
             ingredients_data=ingredients_data,
         )
         return recipe
+    
 
+    @transaction.atomic()
     def update(self, instance, validated_data):
-        ingredients_data = validated_data.pop("recipe_ingredients", None)
-        tags = validated_data.pop("tags", None)
-        image = validated_data.pop("image", None)
-        if image:
-            instance.image = image
-        if tags is None or len(tags) < 1:
-            raise serializers.ValidationError(
-                _("Необходимо указать список тегов для обновления.")
-            )
-        if ingredients_data is None or len(ingredients_data) < 1:
-            raise serializers.ValidationError(
-                _("Необходимо указать список ингредиентов для обновления.")
-            )
+        ingredients_data = validated_data.pop("recipe_ingredients")
+        tags = validated_data.pop("tags")
         instance.tags.set(tags)
         instance = super().update(instance, validated_data)
         instance.recipe_ingredients.all().delete()
-        bulk_create_recipe_ingredients(
+        self.bulk_create_recipe_ingredients(
             recipe=instance,
             ingredients_data=ingredients_data,
         )
         return instance
+
+    @staticmethod
+    def bulk_create_recipe_ingredients(recipe, ingredients_data):
+        """Создает объекты `RecipeIngredient` в БД.
+
+        :recipe - Объект рецепта, к которому будут привязаны ингредиенты.
+        :ingredients_data - Список ингредиентов для создания объектов.
+        """
+
+        RecipeIngredient.objects.bulk_create(
+            [
+                RecipeIngredient(
+                    ingredient=ingredient_data.get("ingredient"),
+                    recipe=recipe,
+                    amount=ingredient_data.get("amount"),
+                )
+                for ingredient_data in ingredients_data
+            ],
+            ignore_conflicts=True,
+        )
 
     def to_representation(self, instance):
         return RecipeReadSerializer(instance, context=self.context).data

@@ -19,7 +19,8 @@ SECRET_KEY = os.environ.get("SECRET_KEY", get_random_secret_key())
 
 SITE_URL = os.environ.get("SITE_URL", "http://127.0.0.1:8000")
 
-DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+# DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+DEBUG = True
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
@@ -81,24 +82,33 @@ TEMPLATES = [
 WSGI_APPLICATION = "foodgram_backend.wsgi.application"
 
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-
-
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", default="postgres"),
-        "USER": os.environ.get("POSTGRES_USER", default="django_user"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", default="django_password"),
-        "HOST": os.environ.get("POSTGRES_HOST", default="localhost"),
-        "PORT": os.environ.get("POSTGRES_PORT", default=5432),
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+USE_SQLITE = os.environ.get("USE_SQLITE", False)
+
+if USE_SQLITE:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("POSTGRES_DB", default="postgres"),
+            "USER": os.environ.get("POSTGRES_USER", default="django_user"),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", default="django_password"),
+            "HOST": os.environ.get("POSTGRES_HOST", default="localhost"),
+            "PORT": os.environ.get("POSTGRES_PORT", default=5432),
+        }
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -132,8 +142,8 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     "LOGIN_FIELD": "email",
+    "HIDE_USERS": False,
 }
-
 
 LANGUAGE_CODE = "ru-RU"
 

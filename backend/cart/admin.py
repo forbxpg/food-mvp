@@ -1,18 +1,35 @@
-from django.contrib import admin
+"""Админка для корзины."""
 
+from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
 
-from cart.models import CartItem, Cart
-
-
-class CartItemInline(TabularInline):
-    model = CartItem
-    extra = 0
-    fk_name = "cart"
-    fields = ("recipe",)
+from cart.models import Cart
 
 
 @admin.register(Cart)
 class CartAdmin(ModelAdmin):
-    inlines = (CartItemInline,)
-    fields = ("user",)
+    """Админка для корзины."""
+
+    list_display = (
+        "id",
+        "user",
+        "recipe",
+    )
+    list_display_links = ("user",)
+    search_fields = ("user__username",)
+    list_filter = ("user",)
+    ordering = ("-created",)
+    list_per_page = 20
+    readonly_fields = ("created",)
+    fieldsets = (
+        (
+            "Общая информация",
+            {
+                "fields": (
+                    "user",
+                    "recipe",
+                    "created",
+                )
+            },
+        ),
+    )

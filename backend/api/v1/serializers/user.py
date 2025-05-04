@@ -11,20 +11,15 @@ from users.models import Subscription
 User = get_user_model()
 
 
-class UserSetPasswordSerializer(SetPasswordSerializer):
-    """Сериализатор для изменения пароля пользователя."""
-
-    def save(self, **kwargs):
-        """Метод для изменения пароля пользователя."""
-        user = self.context.get("request").user
-        user.set_password(self.validated_data["new_password"])
-        user.save()
-
-
 class UserAvatarSerializer(serializers.ModelSerializer):
     """Сериализатор для аватара пользователя."""
 
-    avatar = Base64Field(allow_null=True, required=True)
+    avatar = Base64Field(
+        allow_null=True,
+        required=True,
+        use_url=True,
+        allow_empty_file=False,
+    )
 
     class Meta:
         model = User
@@ -55,13 +50,15 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        user = self.context.get("request").user
-        if user.is_anonymous or not user:
-            return False
-        return Subscription.objects.filter(
-            subscriber=user,
-            subscribing=obj,
-        ).exists()
+        request = self.context.get("request")
+        return bool(
+            request is not None
+            and request.user.is_authenticated
+            and Subscription.objects.filter(
+                subscriber=obj,
+                subscribing=request.user,
+            ).exists()
+        )
 
 
 class UserCreationSerializer(UserCreateSerializer):

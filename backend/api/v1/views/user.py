@@ -1,6 +1,7 @@
 """Модуль представлений для пользователей."""
 
 from django.contrib.auth import get_user_model
+from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -9,10 +10,9 @@ from api.v1.viewsets import CreateRetrieveListViewSet
 from api.v1.pagination import BasePageNumberPagination
 from api.v1.serializers import (
     SubscriptionSerializer,
+    SubscriptionReadSerializer,
     UserSerializer,
     UserAvatarSerializer,
-    UserSetPasswordSerializer,
-    UserSubscribersSerializer,
     UserCreationSerializer,
 )
 from users.models import Subscription
@@ -24,19 +24,24 @@ USER_ACTIONS_SERIALIZERS_MAPPING = {
     "create": UserCreationSerializer,
     "list": UserSerializer,
     "retrieve": UserSerializer,
-    "current_user_detail_action": UserSerializer,
-    "get_subscriptions_list_action": UserSubscribersSerializer,
-    "put_or_delete_avatar_action": UserAvatarSerializer,
-    "set_password_action": UserSetPasswordSerializer,
-    "subscribe_action": SubscriptionSerializer,
+    "me": UserSerializer,
+    "subscriptions": SubscriptionSerializer,
+    "avatar": UserAvatarSerializer,
+    "delete_avatar": UserAvatarSerializer,
+    "subscribe": SubscriptionSerializer,
 }
 
 
-class UserViewSet(CreateRetrieveListViewSet):
+class UserViewSet(DjoserUserViewSet):
     """ViewSet для создания, получения объекта и списка объектов User."""
 
     queryset = User.objects.all()
     pagination_class = BasePageNumberPagination
+
+    def get_permissions(self):
+        if self.action in ["create", "list", "retrieve"]:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
     def get_serializer_class(self):
         """Метод для получения сериализатора в зависимости от действия."""
@@ -44,57 +49,47 @@ class UserViewSet(CreateRetrieveListViewSet):
             return USER_ACTIONS_SERIALIZERS_MAPPING[self.action]
         return super().get_serializer_class()
 
+    def get_serializer_context(self):
+        """Метод для получения контекста сериализатора."""
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
+
     @action(
         methods=["get"],
         detail=False,
         url_path="me",
         permission_classes=[permissions.IsAuthenticated],
     )
-    def current_user_detail_action(self, request, *args, **kwargs):
+    def me(self, request, *args, **kwargs):
         """Метод для получения информации о текущем пользователе."""
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return super().me(request, *args, **kwargs)
 
     @action(
-        methods=["put", "delete"],
+        methods=["put"],
         detail=False,
         url_path="me/avatar",
         permission_classes=[permissions.IsAuthenticated],
     )
-    def put_or_delete_avatar_action(self, request, *args, **kwargs):
+    def avatar(self, request, *args, **kwargs):
         """Метод для получения и изменения аватара текущего пользователя."""
-        if request.method == "PUT":
-            serializer = self.get_serializer(
-                request.user,
-                data=request.data,
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(
-                {"avatar": request.user.get_avatar_url},
-                status=status.HTTP_200_OK,
-            )
-        elif request.method == "DELETE":
-            if request.user.avatar:
-                request.user.avatar.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-    @action(
-        methods=["post"],
-        url_path="set_password",
-        detail=False,
-        permission_classes=[permissions.IsAuthenticated],
-    )
-    def set_password_action(self, request, *args, **kwargs):
-        """Метод для изменения пароля пользователя."""
         serializer = self.get_serializer(
             request.user,
             data=request.data,
-            context={"request": request},
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @avatar.mapping.delete
+    def delete_avatar(self, request, *args, **kwargs):
+        """Метод для удаления аватара текущего пользователя."""
+        user = request.user
+        if user.avatar:
+            user.avatar.delete(save=False)
+        user.avatar = None
+        user.save()
+        serializer = self.get_serializer(user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
@@ -103,10 +98,9 @@ class UserViewSet(CreateRetrieveListViewSet):
         url_path="subscriptions",
         permission_classes=[permissions.IsAuthenticated],
     )
-    def get_subscriptions_list_action(self, request, *args, **kwargs):
+    def subscriptions(self, request, *args, **kwargs):
         """Метод для получения списка подписок пользователя."""
-        user = request.user
-        subscriptions_data = user.subscriptions.all()
+        subscriptions_data = request.user.subscriptions.all()
         page = self.paginate_queryset(subscriptions_data)
         return self.get_paginated_response(
             self.get_serializer(
@@ -117,37 +111,39 @@ class UserViewSet(CreateRetrieveListViewSet):
         )
 
     @action(
-        methods=["post", "delete"],
+        methods=["post"],
         detail=True,
         url_path="subscribe",
         permission_classes=[permissions.IsAuthenticated],
     )
-    def subscribe_action(self, request, *args, **kwargs):
+    def subscribe(self, request, *args, **kwargs):
         """Метод для подписки на пользователя."""
-        subscribing_target = self.get_object()
-        user = request.user
-        if request.method == "POST":
-            serializer = self.get_serializer(
-                data={
-                    "subscriber": user.id,
-                    "subscribing": subscribing_target.id,
-                },
-                context={
-                    "request": request,
-                },
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+        serializer = self.get_serializer(
+            data={
+                "subscriber": request.user.id,
+                "subscribing": self.get_object().id,
+            },
+            context={
+                "request": request,
+            },
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    @subscribe.mapping.delete
+    def delete_subscribe(self, request, *args, **kwargs):
+        """Метод для отписки от пользователя."""
+        delete_count, dt = Subscription.objects.filter(
+            subscriber=request.user,
+            subscribing=self.get_object(),
+        ).delete()
+        if delete_count == 0:
             return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED,
+                data={"error": "Вы не подписаны на данного пользователя."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        elif request.method == "DELETE":
-            try:
-                user.subscriptions.get(
-                    subscribing=subscribing_target,
-                    subscriber=user,
-                ).delete()
-            except Subscription.DoesNotExist:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)

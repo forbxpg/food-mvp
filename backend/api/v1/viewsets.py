@@ -8,19 +8,6 @@ from rest_framework.mixins import (
 )
 
 
-class RetrieveListViewSet(
-    RetrieveModelMixin,
-    ListModelMixin,
-    GenericViewSet,
-):
-    """
-    Базовый ViewSet для получения списка объектов
-    и детальной информации об одном объекте.
-    """
-
-    ...
-
-
 class CreateRetrieveListViewSet(
     CreateModelMixin,
     RetrieveModelMixin,

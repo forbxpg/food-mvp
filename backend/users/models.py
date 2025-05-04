@@ -30,25 +30,17 @@ class User(AbstractUser):
         null=True,
     )
 
-    REQUIRED_FIELDS = ["first_name", "last_name", "email"]
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name", "last_name", "username"]
 
     def __str__(self):
         """Возвращает строковое представление пользователя."""
-        return self.username
+        return f"Пользователь {self.username}"
 
-    @property
-    def get_avatar_url(self):
-        """Возвращает URL аватара пользователя."""
-        if self.avatar:
-            return f"{settings.SITE_URL}{self.avatar.url}"
-        return None
-
-    def save(self, *args, **kwargs):
-        if self.pk:
-            old_avatar = User.objects.get(pk=self.pk).avatar
-            if old_avatar and old_avatar != self.avatar:
-                old_avatar.delete(save=False)
-        super().save(*args, **kwargs)
+    class Meta:
+        verbose_name = _("Пользователь")
+        verbose_name_plural = _("Пользователи")
+        ordering = ("username",)
 
 
 class Subscription(models.Model):
@@ -72,10 +64,14 @@ class Subscription(models.Model):
         verbose_name=_("Автор"),
     )
     created_at = models.DateTimeField(
+        _("Дата подписки"),
         auto_now_add=True,
     )
 
     class Meta:
+        verbose_name = _("Подписка")
+        verbose_name_plural = _("Подписки")
+        ordering = ("-created_at",)
         constraints = [
             models.UniqueConstraint(
                 fields=("subscriber", "subscribing"),
@@ -87,5 +83,7 @@ class Subscription(models.Model):
                 violation_error_message=_("Нельзя подписаться на себя."),
             ),
         ]
-        verbose_name = _("Подписка")
-        verbose_name_plural = _("Подписки")
+
+    def __str__(self):
+        """Возвращает строковое представление подписки."""
+        return f"{self.subscriber.username} -> {self.subscribing.username}"

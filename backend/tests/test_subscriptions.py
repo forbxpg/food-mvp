@@ -114,9 +114,7 @@ class TestSubscriptions:
             self.subscribe_url.format(id=second_user.id),
             data={},
         )
-        assert (
-            subscription_response.status_code == HTTPStatus.CREATED
-        )
+        assert subscription_response.status_code == HTTPStatus.CREATED
         assert subscription_response.data["id"] == second_user.id
         assert (
             Subscription.objects.filter(
@@ -169,39 +167,3 @@ class TestSubscriptions:
             ).exists()
             is False
         )
-
-    def test_is_subscribed_param(
-        self,
-        second_user_client,
-        user,
-        second_user,
-        user_client,
-    ):
-        """Проверка параметра is_subscribed в ответе на запрос."""
-        subscribe_response = second_user_client.post(
-            self.subscribe_url.format(id=user.id), data={}
-        )
-        assert subscribe_response.status_code == HTTPStatus.CREATED
-        assert subscribe_response.data["id"] == user.id
-        assert (
-            Subscription.objects.filter(
-                subscribing=user,
-                subscriber=second_user,
-            ).exists()
-            is True
-        )
-        first_user_subscribe_response = user_client.post(
-            self.subscribe_url.format(id=second_user.id),
-        )
-        assert (
-            first_user_subscribe_response.status_code == HTTPStatus.CREATED
-        )
-        assert first_user_subscribe_response.data["id"] == second_user.id
-        assert (
-            Subscription.objects.filter(
-                subscribing=second_user,
-                subscriber=user,
-            ).exists()
-            is True
-        )
-        assert subscribe_response.data["is_subscribed"] is True

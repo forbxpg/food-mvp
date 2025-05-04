@@ -1,32 +1,26 @@
 """Сериализаторы для модели избранного."""
 
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
-from favorite.models import FavoriteRecipe
+from api.v1.utils import BaseRecipeReadSerializer
+from favorite.models import Favorite
 from recipes.models import Recipe
 
 
-class FavoriteRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор для отображения рецепта в избранном."""
+class FavoriteWriteSerializer(serializers.ModelSerializer):
+    """Сериализатор для добавления рецепта в избранное."""
 
     class Meta:
-        model = Recipe
-        fields = ("id", "image", "cooking_time", "name")
-
-
-class FavoriteSerializer(serializers.ModelSerializer):
-    """Сериализатор для добавления/удаления рецепта в избранное."""
-
-    class Meta:
-        model = FavoriteRecipe
-        fields = ("id", "favorite", "recipe")
+        model = Favorite
+        fields = ("user", "recipe")
         validators = [
             serializers.UniqueTogetherValidator(
-                queryset=FavoriteRecipe.objects.all(),
-                fields=("recipe", "favorite"),
-                message="Этот рецепт уже в избранном.",
+                queryset=Favorite.objects.all(),
+                fields=("recipe", "user"),
+                message=_("Этот рецепт уже в избранном."),
             )
         ]
 
     def to_representation(self, instance):
-        return FavoriteRecipeSerializer(instance.recipe).data
+        return BaseRecipeReadSerializer(instance.recipe).data

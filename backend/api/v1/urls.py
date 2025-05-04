@@ -1,11 +1,25 @@
-from django.urls import path, include
+"""URLs for the API v1."""
 
-from .views import download_cart_api_view
-from .routers import v1_router
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+from api.v1.views import (
+    IngredientViewSet,
+    RecipeViewSet,
+    TagViewSet,
+    UserViewSet,
+)
+
+
+v1_router = DefaultRouter()
+
+v1_router.register("tags", TagViewSet, basename="tags")
+v1_router.register("ingredients", IngredientViewSet, basename="ingredients")
+v1_router.register("recipes", RecipeViewSet, basename="recipes")
+v1_router.register("users", UserViewSet, basename="users")
 
 
 urlpatterns = [
-    path("recipes/download_shopping_cart/", download_cart_api_view),
     path("", include(v1_router.urls)),
     path("auth/", include("djoser.urls.authtoken")),
 ]

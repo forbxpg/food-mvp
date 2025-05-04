@@ -3,10 +3,12 @@
 import base64
 
 from django.core.files.base import ContentFile
-from rest_framework.serializers import ImageField
+from rest_framework import serializers
+
+from recipes.models import Recipe
 
 
-class Base64Field(ImageField):
+class Base64Field(serializers.ImageField):
 
     def to_internal_value(self, data):
         """Метод для преобразования данных аватара в Base64."""
@@ -16,3 +18,18 @@ class Base64Field(ImageField):
             ext = format.split("/")[-1]
             data = ContentFile(base64.b64decode(imgstr), name=f"avatar.{ext}")
         return super().to_internal_value(data)
+
+
+class BaseRecipeReadSerializer(serializers.ModelSerializer):
+    """Сериализатор для отображения рецепта в корзине и избранном."""
+
+    image = Base64Field(
+        use_url=True,
+        allow_empty_file=False,
+        allow_null=False,
+        required=True,
+    )
+
+    class Meta:
+        fields = ("id", "image", "name", "cooking_time")
+        model = Recipe

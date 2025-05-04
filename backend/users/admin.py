@@ -13,10 +13,10 @@ from unfold.forms import (
     UserCreationForm,
 )
 
-from cart.models import CartItem
-from favorite.models import FavoriteRecipe
+# from cart.models import CartItem
+# from favorite.models import FavoriteRecipe
 from recipes.models import Recipe
-
+from users.models import Subscription
 
 User = get_user_model()
 
@@ -30,6 +30,15 @@ class RecipeInline(TabularInline):
     fields = (
         "name",
         "cooking_time",
+    )
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(ModelAdmin):
+    list_display = (
+        "subscriber",
+        "subscribing",
+        "created_at",
     )
 
 
@@ -68,8 +77,8 @@ class UserAdmin(UserAdmin, ModelAdmin):
             {
                 "fields": (
                     "subscribers_count",
-                    "recipes_in_cart",
-                    "recipes_in_favorite",
+                    # "recipes_in_cart",
+                    # "recipes_in_favorite",
                 )
             },
         ),
@@ -90,33 +99,33 @@ class UserAdmin(UserAdmin, ModelAdmin):
     )
     readonly_fields = (
         "subscribers_count",
-        "recipes_in_cart",
-        "recipes_in_favorite",
+        # "recipes_in_cart",
+        # "recipes_in_favorite",
     )
 
     def subscribers_count(self, obj):
         return obj.subscribers.count()
 
-    def recipes_in_cart(self, obj):
-        return (
-            CartItem.objects.select_related(
-                "cart__user",
-                "recipe",
-            )
-            .filter(cart__user=obj)
-            .count()
-        )
+    # def recipes_in_cart(self, obj):
+    #     return (
+    #         CartItem.objects.select_related(
+    #             "cart__user",
+    #             "recipe",
+    #         )
+    #         .filter(cart__user=obj)
+    #         .count()
+    #     )
 
-    def recipes_in_favorite(self, obj):
-        return (
-            FavoriteRecipe.objects.select_related(
-                "favorite__user",
-                "recipe",
-            )
-            .filter(favorite__user=obj)
-            .count()
-        )
+    # def recipes_in_favorite(self, obj):
+    #     return (
+    #         FavoriteRecipe.objects.select_related(
+    #             "favorite__user",
+    #             "recipe",
+    #         )
+    #         .filter(favorite__user=obj)
+    #         .count()
+    #     )
 
     subscribers_count.short_description = _("Количество подписчиков")
-    recipes_in_cart.short_description = _("Рецептов в корзине")
-    recipes_in_favorite.short_description = _("Рецептов в избранном")
+    # recipes_in_cart.short_description = _("Рецептов в корзине")
+    # recipes_in_favorite.short_description = _("Рецептов в избранном")
