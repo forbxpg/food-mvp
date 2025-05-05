@@ -212,4 +212,6 @@ class Recipe(models.Model):
         if not self.link:
             while True:
                 self.link = get_random_string(length=config.SHORT_LINK_LENGTH)
+                if not Recipe.objects.filter(link=self.link).exists():
+                    break
         return super().save(*args, **kwargs)

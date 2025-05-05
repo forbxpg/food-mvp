@@ -84,7 +84,7 @@ class UserViewSet(DjoserUserViewSet):
         """Метод для удаления аватара текущего пользователя."""
         user = request.user
         if user.avatar:
-            user.avatar.delete(save=False)
+            user.avatar.delete()
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

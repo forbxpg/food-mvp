@@ -142,6 +142,10 @@ REST_FRAMEWORK = {
 DJOSER = {
     "LOGIN_FIELD": "email",
     "HIDE_USERS": False,
+    "SERIALIZERS": {
+        "user": "api.v1.serializers.UserSerializer",
+        "current_user": "api.v1.serializers.UserSerializer",
+    },
 }
 
 LANGUAGE_CODE = "ru-RU"
