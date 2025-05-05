@@ -2,6 +2,7 @@
 
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet as DjoserUserViewSet
+from djoser.serializers import UserCreateSerializer
 from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -10,7 +11,6 @@ from api.v1.pagination import BasePageNumberPagination
 from api.v1.serializers import (
     SubscriptionSerializer,
     UserAvatarSerializer,
-    UserCreationSerializer,
     UserSerializer,
 )
 from users.models import Subscription
@@ -19,7 +19,7 @@ from users.models import Subscription
 User = get_user_model()
 
 USER_ACTIONS_SERIALIZERS_MAPPING = {
-    "create": UserCreationSerializer,
+    "create": UserCreateSerializer,
     "list": UserSerializer,
     "retrieve": UserSerializer,
     "me": UserSerializer,
@@ -85,7 +85,6 @@ class UserViewSet(DjoserUserViewSet):
         user = request.user
         if user.avatar:
             user.avatar.delete(save=False)
-        user.avatar = None
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -138,7 +137,7 @@ class UserViewSet(DjoserUserViewSet):
             subscriber=request.user,
             subscribing=self.get_object(),
         ).delete()
-        if delete_count == 0:
+        if not delete_count:
             return Response(
                 data={"error": "Вы не подписаны на данного пользователя."},
                 status=status.HTTP_400_BAD_REQUEST,

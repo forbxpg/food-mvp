@@ -32,14 +32,14 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "username"]
 
-    def __str__(self):
-        """Возвращает строковое представление пользователя."""
-        return f"Пользователь {self.username}"
-
     class Meta:
         verbose_name = _("Пользователь")
         verbose_name_plural = _("Пользователи")
         ordering = ("username",)
+
+    def __str__(self):
+        """Возвращает строковое представление пользователя."""
+        return f"Пользователь {self.username}"
 
 
 class Subscription(models.Model):

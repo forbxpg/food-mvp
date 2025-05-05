@@ -209,7 +209,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 )
                 for ingredient_data in ingredients_data
             ],
-            ignore_conflicts=True,
         )
 
     def to_representation(self, instance):

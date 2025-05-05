@@ -83,15 +83,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "foodgram_backend.wsgi.application"
 
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
-
 if os.environ.get("USE_SQLITE", False):
     DATABASES = {
         "default": {
@@ -103,11 +94,26 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("POSTGRES_DB", default="postgres"),
-            "USER": os.environ.get("POSTGRES_USER", default="django_user"),
-            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", default="django_password"),
-            "HOST": os.environ.get("POSTGRES_HOST", default="localhost"),
-            "PORT": os.environ.get("POSTGRES_PORT", default=5432),
+            "NAME": os.environ.get(
+                "POSTGRES_DB",
+                default="postgres",
+            ),
+            "USER": os.environ.get(
+                "POSTGRES_USER",
+                default="django_user",
+            ),
+            "PASSWORD": os.environ.get(
+                "POSTGRES_PASSWORD",
+                default="django_password",
+            ),
+            "HOST": os.environ.get(
+                "POSTGRES_HOST",
+                default="localhost",
+            ),
+            "PORT": os.environ.get(
+                "POSTGRES_PORT",
+                default=5432,
+            ),
         }
     }
 

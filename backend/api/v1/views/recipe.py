@@ -56,11 +56,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RECIPE_ACTIONS_SERIALIZERS_MAPPING[self.action]
         return super().get_serializer_class()
 
-    def perform_destroy(self, instance):
-        if instance.image:
-            instance.image.delete(save=False)
-        return super().perform_destroy(instance)
-
     @action(
         methods=["post"],
         detail=True,
@@ -83,7 +78,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe=self.get_object(),
             user=request.user,
         ).delete()
-        if delete_count == 0:
+        if not delete_count:
             return Response(
                 data={"error": _("Данного рецепта нет в корзине")},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -112,7 +107,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe=self.get_object(),
             user=request.user,
         ).delete()
-        if delete_count == 0:
+        if not delete_count:
             return Response(
                 data={"error": _("Данного рецепта нет в избранном")},
                 status=status.HTTP_400_BAD_REQUEST,
