@@ -1,4 +1,5 @@
 import os
+from email.policy import default
 from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
@@ -82,7 +83,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "foodgram_backend.wsgi.application"
-
 
 DATABASES = {
     "default": {
